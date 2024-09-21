@@ -1,6 +1,6 @@
 import pytest
 import requests
-from underflow.analyze_code import check_for_external_services
+from underflow_sdk.analyze_code import check_for_external_services
 
 
 def test_detect_aws():

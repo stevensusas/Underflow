@@ -26,7 +26,6 @@ def check_for_external_services(code_str: str):
             {"role": "user", "content": code_str},
         ],
         model="llama3.1-8b",
-        response_format={"type": "json_object"},
         temperature=0.0,
     )
     return resp
