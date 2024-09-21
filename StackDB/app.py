@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 from collections import defaultdict
 from enum import Enum
 import uvicorn
-import openai
+from openai import OpenAI
 from openai import OpenAIError
 import os
 from dotenv import load_dotenv
@@ -22,7 +22,8 @@ DB_NAME = "StackUnderflow"
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 if not OPENAI_API_KEY:
     raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
-openai.api_key = OPENAI_API_KEY
+
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # Define the ServiceType Enum
 class ServiceType(Enum):
@@ -318,21 +319,19 @@ def generate_technical_report(request: ServiceRequest):
         """
 
         # Call OpenAI API to generate the report
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a technical analyst."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=1000,
-            temperature=0.7,
-        )
+        response = client.chat.completions.create(model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a technical analyst."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000,
+        temperature=0.7)
 
         # Extract the report from OpenAI's response
-        report = response.choices[0].message['content'].strip()
+        report = response.choices[0].message.content.strip()
         print(f"Generated technical report: {report}")
         return ReportResponse(report=report)
-    
+
 
     except openai.OpenAIError as oe:
         print(f"OpenAI API error: {oe}")
