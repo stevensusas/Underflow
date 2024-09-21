@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #171717;
-  --foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #0a0a0a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ededed;
+    --foreground: #0a0a0a;
   }
 }
 
@@ -89,4 +89,15 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.uBox1 {
+  background-color: rgb(100, 255, 255);
+  height: 100px;
+  width: 100px;
+}
+
+.uRow {
+  margin-top: 10px;
+  margin-bottom: 10px
 }
