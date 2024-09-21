@@ -18,12 +18,10 @@ DB_USER = "admin"   # Replace with your MySQL username
 DB_PASSWORD = "12345678" # Replace with your MySQL password
 DB_NAME = "StackUnderflow"
 
-# OpenAI Configuration
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-if not OPENAI_API_KEY:
-    raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(
+    api_key=os.getenv('OPENAI_API_KEY')
+)
 
 # Define the ServiceType Enum
 class ServiceType(Enum):
@@ -333,7 +331,7 @@ def generate_technical_report(request: ServiceRequest):
         return ReportResponse(report=report)
 
 
-    except openai.OpenAIError as oe:
+    except OpenAIError as oe:
         print(f"OpenAI API error: {oe}")
         raise HTTPException(status_code=502, detail="Error communicating with OpenAI API.")
     except Error as db_error:
