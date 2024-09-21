@@ -6,9 +6,12 @@ authors = ["Laurence Liang <laurence@example.com>"]
 readme = "README.md"
 packages = [{include = "src"}]
 
+[tool.poetry.scripts]
+underflow = "src.underflow.cli:cli"
+
 [tool.poetry.dependencies]
 python = "^3.7"
-
+click = "^8.1.7"
 
 [build-system]
 requires = ["poetry-core"]
