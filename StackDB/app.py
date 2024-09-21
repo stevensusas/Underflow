@@ -1,11 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from mysql.connector import connect
-from mysql.connector.errors import Error
-from typing import List, Dict, Any, Optional
+from mysql.connector import connect, Error
+from typing import List, Dict, Any
 from collections import defaultdict
 from enum import Enum
+import uvicorn
 
+# Database Configuration
 DB_HOST = 'stackunderflow.cha8ies4obs2.us-east-1.rds.amazonaws.com'  # Replace with your RDS endpoint
 DB_PORT = 3306  # MySQL default port
 DB_USER = 'admin'  # Replace with your MySQL username
@@ -13,8 +14,7 @@ DB_PASSWORD = '12345678'  # Replace with your MySQL password
 DB_NAME = 'StackUnderflow'
 
 
-# app = FastAPI()
-
+# Define the ServiceType Enum
 class ServiceType(Enum):
     COMPUTE = "Compute"
     STORAGE = "Storage"
@@ -61,6 +61,8 @@ class ServiceType(Enum):
     OPTIMIZATION = "Optimization"
     PERFORMANCE = "Performance"
 
+
+# Define the Service Pydantic Model
 class Service(BaseModel):
     name: str
     cost: float
@@ -68,6 +70,23 @@ class Service(BaseModel):
     description: str
     traffic: float
 
+
+# Define the Request Model
+class ServiceRequest(BaseModel):
+    services: List[str]
+    traffic: float
+
+
+# Define the Response Model
+class ServiceResponse(BaseModel):
+    name: str
+    type: ServiceType
+    cost: float
+    description: str
+    traffic: float
+
+
+# API Class to handle database operations
 class API:
     def __init__(self):
         self.connection = self.get_db_connection()
@@ -82,19 +101,19 @@ class API:
                 database=DB_NAME,
                 autocommit=False  # Manage transactions manually
             )
+            print("Successfully connected to the database.")
             return connection
         except Error as e:
             print(f"Error connecting to MySQL: {e}")
             raise
-    
-    def get_services(self, json_obj: Dict[str, Any]) -> List[Service]:
-        """
-        Unpacks the JSON object to fetch the specified services from the database.
 
-        :param json_obj: A JSON object with 'services' and 'traffic' fields.
-        :return: A list of Service models.
+    def get_services(self, services_names: List[str]) -> List[Service]:
         """
-        services_names = json_obj.get('services', [])
+        Fetches services from the database based on provided service names.
+
+        :param services_names: List of service names to fetch.
+        :return: List of Service instances.
+        """
         services = []
 
         if not self.connection:
@@ -102,7 +121,7 @@ class API:
             return services
 
         if not services_names:
-            print("No services provided in the JSON object.")
+            print("No services provided.")
             return services
 
         try:
@@ -118,27 +137,38 @@ class API:
             results = cursor.fetchall()
 
             for row in results:
-                service = Service(
-                name=row['name'],
-                cost=float(row['cost_per_user_per_hour']),
-                type=ServiceType(row['type']),  # Ensure this matches your Enum
-                description=row.get('detailed_description', ''),
-                traffic=float(row.get('traffic_upperbound', 0))
-                )
-                services.append(service)
+                try:
+                    service = Service(
+                        name=row['name'],
+                        cost=float(row['cost_per_user_per_hour']),
+                        type=ServiceType(row['type']),
+                        description=row.get('detailed_description', ''),
+                        traffic=float(row.get('traffic_upperbound', 0))
+                    )
+                    services.append(service)
+                except ValueError as ve:
+                    print(f"Data conversion error for service {row['name']}: {ve}")
+                except KeyError as ke:
+                    print(f"Missing expected field {ke} in database response.")
 
             print(f"Fetched {len(services)} services from the database.")
 
         except Error as e:
             print(f"Error: '{e}' occurred while fetching services.")
+            raise
         finally:
             if cursor:
                 cursor.close()
 
         return services
 
-    def find_cheapest_highest_traffic_per_type(self, json_obj: Dict[str, Any]) -> List[Service]:
-        services = self.get_services(json_obj)
+    def find_cheapest_highest_traffic_per_type(self, services: List[Service]) -> List[Service]:
+        """
+        Identifies the cheapest service with the highest traffic for each service type.
+
+        :param services: List of Service instances.
+        :return: List of optimal Service instances.
+        """
         # Group services by type
         services_by_type = defaultdict(list)
         for service in services:
@@ -148,7 +178,7 @@ class API:
 
         for service_type, service_list in services_by_type.items():
             if service_type is None:
-                print(f"Warning: Service type for services {', '.join([s.name for s in service_list])} is unknown.")
+                print(f"Warning: Service type for services {[s.name for s in service_list]} is unknown.")
                 continue  # Skip unknown types
 
             # Sort services first by cost (ascending), then by traffic (descending)
@@ -160,46 +190,68 @@ class API:
         print(f"Identified {len(optimal_services)} optimal services across service types.")
         return optimal_services
 
+    def close_connection(self):
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
+            print("Database connection closed.")
 
 
-# Main Function
-def main():
-    db_handler = API()
-    # Example: Fetch all services
-    input_json = {
-        "services": ["IBM Watson",
-    "Zscaler Cloud Firewall",
-    "Ping Identity Adaptive MFA",
-    "Oracle Autonomous Database",
-    "Puppet Enterprise",
-    "TravisCI Builds",
-    "New Relic Insights",
-    "Datadog APM",
-    "Azure SQL Database",
-    "Fastly Edge Compute"],
-        "traffic": 1000
-    }
-    services = db_handler.get_services(input_json)
-    print("Available Services:")
-    for service in services:
-        print(f"- {service.name} ({service.type.value}): ${service.cost}/hour, {service.traffic} users")
+# Initialize FastAPI
+app = FastAPI(title="StackUnderflow Service Optimizer")
 
-    for service in services:
-        print(f"- {service.name}: ${service.cost}/hour")
-
-    # Example: Calculate current cost
-    optimal_services = db_handler.find_cheapest_highest_traffic_per_type(input_json)
-    print("Optimal Services:")
-    for service in optimal_services:
-        print(f"- {service.name} ({service.type.value}): ${service.cost}/hour, {service.traffic} users")
-    
-    # Close the database connection when done
-    if db_handler.connection and db_handler.connection.is_connected():
-        db_handler.connection.close()
-        print("\nDatabase connection closed.")
+# Initialize the API handler
+api_handler = API()
 
 
+# Define the Endpoint
+@app.post("/optimal-services", response_model=List[ServiceResponse])
+def get_optimal_services(request: ServiceRequest):
+    """
+    Endpoint to find the cheapest services with the highest traffic per service type.
+
+    :param request: ServiceRequest containing service names and traffic.
+    :return: List of optimal services.
+    """
+    try:
+        # Fetch services from the database
+        services = api_handler.get_services(request.services)
+        if not services:
+            raise HTTPException(status_code=404, detail="No services found for the provided names.")
+
+        # Identify optimal services
+        optimal_services = api_handler.find_cheapest_highest_traffic_per_type(services)
+        if not optimal_services:
+            raise HTTPException(status_code=404, detail="No optimal services could be identified.")
+
+        return [ServiceResponse(**service.dict()) for service in optimal_services]
+
+    except Error as db_error:
+        print(f"Database error: {db_error}")
+        raise HTTPException(status_code=500, detail="Internal server error while accessing the database.")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
+
+
+# Define a Root Endpoint for Health Check
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the StackUnderflow Service Optimizer API!"}
+
+
+# Shutdown Event to close the DB connection
+@app.on_event("shutdown")
+def shutdown_event():
+    api_handler.close_connection()
+
+
+# Optional: Define a Startup Event (if needed)
+@app.on_event("startup")
+def startup_event():
+    # You can add startup logic here if needed
+    pass
+
+
+# Main function to run the app using Uvicorn
 if __name__ == "__main__":
-    main()
-
-
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
