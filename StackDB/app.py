@@ -5,14 +5,23 @@ from typing import List, Dict, Any
 from collections import defaultdict
 from enum import Enum
 import uvicorn
+from openai import OpenAI
+from openai import OpenAIError
+import os
+from dotenv import load_dotenv
+
 
 # Database Configuration
-DB_HOST = 'stackunderflow.cha8ies4obs2.us-east-1.rds.amazonaws.com'  # Replace with your RDS endpoint
-DB_PORT = 3306  # MySQL default port
-DB_USER = 'admin'  # Replace with your MySQL username
-DB_PASSWORD = '12345678'  # Replace with your MySQL password
-DB_NAME = 'StackUnderflow'
+DB_HOST = "stackunderflow.cha8ies4obs2.us-east-1.rds.amazonaws.com"# Replace with your RDS endpoint
+DB_PORT = "3306"# MySQL default port
+DB_USER = "admin"   # Replace with your MySQL username
+DB_PASSWORD = "12345678" # Replace with your MySQL password
+DB_NAME = "StackUnderflow"
 
+
+client = OpenAI(
+    api_key=os.getenv('OPENAI_API_KEY')
+)
 
 # Define the ServiceType Enum
 class ServiceType(Enum):
@@ -85,6 +94,9 @@ class ServiceResponse(BaseModel):
     description: str
     traffic: float
 
+# Define the Report Response Model
+class ReportResponse(BaseModel):
+    report: str
 
 # API Class to handle database operations
 class API:
@@ -202,6 +214,28 @@ app = FastAPI(title="StackUnderflow Service Optimizer")
 # Initialize the API handler
 api_handler = API()
 
+# Define the Endpoint
+@app.post("/original-services", response_model=List[ServiceResponse])
+def get_original_services(request: ServiceRequest):
+    """
+    Endpoint to find the cheapest services with the highest traffic per service type.
+
+    :param request: ServiceRequest containing service names and traffic.
+    :return: List of optimal services.
+    """
+    try:
+        # Fetch services from the database
+        services = api_handler.get_services(request.services)
+        if not services:
+            raise HTTPException(status_code=404, detail="No services found for the provided names.")
+        return [ServiceResponse(**service.dict()) for service in services]
+
+    except Error as db_error:
+        print(f"Database error: {db_error}")
+        raise HTTPException(status_code=500, detail="Internal server error while accessing the database.")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 # Define the Endpoint
 @app.post("/optimal-services", response_model=List[ServiceResponse])
@@ -233,6 +267,81 @@ def get_optimal_services(request: ServiceRequest):
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 
+# Define the Endpoint to Generate Technical Report
+@app.post("/generate-report", response_model=ReportResponse)
+def generate_technical_report(request: ServiceRequest):
+    """
+    Endpoint to generate a technical report explaining the optimization.
+
+    :param request: ServiceRequest containing service names and traffic.
+    :return: Technical report as a string.
+    """
+    try:
+        # Fetch original services from the database
+        original_services = api_handler.get_services(request.services)
+        if not original_services:
+            raise HTTPException(status_code=404, detail="No services found for the provided names.")
+
+        # Identify optimal services
+        optimal_services = api_handler.find_cheapest_highest_traffic_per_type(original_services)
+        if not optimal_services:
+            raise HTTPException(status_code=404, detail="No optimal services could be identified.")
+
+        # Prepare the context for the report
+        original_services_data = "\n".join([
+            f"- **{service.name}** (Type: {service.type.value})\n  - Cost: ${service.cost}/user/hour\n  - Traffic Upperbound: {service.traffic} units\n  - Description: {service.description}"
+            for service in original_services
+        ])
+
+        optimal_services_data = "\n".join([
+            f"- **{service.name}** (Type: {service.type.value})\n  - Cost: ${service.cost}/user/hour\n  - Traffic Upperbound: {service.traffic} units\n  - Description: {service.description}"
+            for service in optimal_services
+        ])
+
+        # Define the prompt for OpenAI
+        prompt = f"""
+        Given the following original services and the optimized services, generate a detailed technical report explaining why the optimized services were chosen over the original ones and how this selection reduces costs while maintaining or improving traffic handling capabilities.
+
+        **Original Services:**
+        {original_services_data}
+
+        **Optimized Services:**
+        {optimal_services_data}
+
+        **Requirements:**
+        - Explain the criteria used for optimization.
+        - Highlight cost reductions achieved.
+        - Discuss any improvements in traffic handling or other relevant metrics.
+        - Provide a clear comparison between original and optimized services.
+        - Use a professional and technical tone suitable for stakeholders.
+        """
+
+        # Call OpenAI API to generate the report
+        response = client.chat.completions.create(model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a technical analyst."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000,
+        temperature=0.7)
+
+        # Extract the report from OpenAI's response
+        report = response.choices[0].message.content.strip()
+        print(f"Generated technical report: {report}")
+        return ReportResponse(report=report)
+
+
+    except OpenAIError as oe:
+        print(f"OpenAI API error: {oe}")
+        raise HTTPException(status_code=502, detail="Error communicating with OpenAI API.")
+    except Error as db_error:
+        print(f"Database error: {db_error}")
+        raise HTTPException(status_code=500, detail="Internal server error while accessing the database.")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
+
+
 # Define a Root Endpoint for Health Check
 @app.get("/")
 def read_root():
@@ -243,13 +352,6 @@ def read_root():
 @app.on_event("shutdown")
 def shutdown_event():
     api_handler.close_connection()
-
-
-# Optional: Define a Startup Event (if needed)
-@app.on_event("startup")
-def startup_event():
-    # You can add startup logic here if needed
-    pass
 
 
 # Main function to run the app using Uvicorn
