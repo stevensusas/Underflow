@@ -1,0 +1,6 @@
+@import './global.css';
+
+body {
+  margin: 0;
+  font-family: var(--font-montserrat-alternates), sans-serif;
+}
