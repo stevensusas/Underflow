@@ -16,5 +16,19 @@ def get_hello_world():
     return resp
 
 
+def check_for_external_services(code_str: str):
+    resp = cerebras_client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": "Detect which external services are used in the following code. Return a list.",
+            },
+            {"role": "user", "content": code_str},
+        ],
+        model="llama3.1-8b",
+    )
+    return resp
+
+
 if __name__ == "__main__":
     pprint(get_hello_world().choices[0].message.content)
