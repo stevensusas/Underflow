@@ -21,11 +21,13 @@ def check_for_external_services(code_str: str):
         messages=[
             {
                 "role": "system",
-                "content": "Detect which external services are used in the following code. Return a list.",
+                "content": "Detect which external services are used in the following code. Return a list of of the services only. Only return a list, separated by a comma. Do not return any other text.",
             },
             {"role": "user", "content": code_str},
         ],
         model="llama3.1-8b",
+        response_format={"type": "json_object"},
+        temperature=0.0,
     )
     return resp
 
