@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "underflow-cli"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+underflow = "underflow_cli.cli:cli"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"
+requests = "^2.32.3"
+underflow-sdk = { path = "../underflow_sdk_parent" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
