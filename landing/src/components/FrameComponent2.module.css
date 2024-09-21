@@ -1,0 +1,204 @@
+.label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    background-color: var(--color-darkslategray-100);
+    width: 100%;
+    height: 100%;
+  }
+  .materialSymbolsLightmoneyBIcon {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    width: 31px;
+    height: 31px;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .labelParent {
+    height: 57px;
+    flex: 1;
+    position: relative;
+  }
+  .frameWrapper {
+    width: 311px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 var(--padding-108xl);
+    box-sizing: border-box;
+  }
+  .costOptimization1 {
+    margin: 0;
+  }
+  .costOptimization {
+    position: relative;
+    font-weight: 500;
+  }
+  .featureTitles {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 var(--padding-62xl) 0 var(--padding-63xl);
+  }
+  .pickTheCheapest {
+    position: relative;
+    font-size: var(--font-size-sm);
+  }
+  .frameParent {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: var(--gap-2xl);
+    max-width: 100%;
+  }
+  .frameChild {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    background-color: var(--color-darkslategray-100);
+    width: 100%;
+    height: 100%;
+  }
+  .letsIconsserverLight {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    width: 31px;
+    height: 31px;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .ellipseParent {
+    height: 57px;
+    flex: 1;
+    position: relative;
+  }
+  .frameContainer {
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 var(--padding-72xl);
+  }
+  .serverManagement {
+    position: relative;
+    font-weight: 500;
+  }
+  .serverManagementWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 var(--padding-10xl) 0 var(--padding-14xl);
+  }
+  .startstopServersBased {
+    position: relative;
+    font-size: var(--font-size-sm);
+  }
+  .frameGroup {
+    width: 273px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 var(--padding-14xl) 0 0;
+    box-sizing: border-box;
+    gap: var(--gap-2xl);
+  }
+  .frameItem {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    background-color: var(--color-darkslategray-100);
+    width: 100%;
+    height: 100%;
+  }
+  .uilanalysisIcon {
+    position: absolute;
+    top: 17px;
+    left: 17px;
+    width: 24px;
+    height: 24px;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .ellipseGroup {
+    height: 57px;
+    flex: 1;
+    position: relative;
+  }
+  .frameWrapper1 {
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 var(--padding-82xl) 0 var(--padding-72xl);
+  }
+  .efficiencyAnalysis {
+    position: relative;
+    font-weight: 500;
+  }
+  .efficiencyAnalysisWrapper {
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 var(--padding-22xl);
+  }
+  .detailedReportsOn {
+    position: relative;
+    font-size: var(--font-size-sm);
+  }
+  .frameDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: var(--gap-2xl);
+  }
+  .featuresGrid,
+  .featuresGridWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: 100%;
+  }
+  .featuresGrid {
+    width: 1224px;
+    justify-content: space-between;
+    gap: var(--gap-xl);
+  }
+  .featuresGridWrapper {
+    align-self: stretch;
+    justify-content: center;
+    padding: 0 var(--padding-4xl) 0 var(--padding-xl);
+    box-sizing: border-box;
+    text-align: left;
+    font-size: var(--font-size-base);
+    color: var(--color-black);
+    font-family: var(--font-montserrat-alternates);
+  }
+  @media screen and (max-width: 1025px) {
+    .featuresGrid {
+      flex-wrap: wrap;
+    }
+  }
+  @media screen and (max-width: 450px) {
+    .featureTitles,
+    .frameWrapper {
+      padding-left: var(--padding-xl);
+      padding-right: var(--padding-xl);
+      box-sizing: border-box;
+    }
+  }
+  

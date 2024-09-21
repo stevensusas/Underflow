@@ -1,0 +1,131 @@
+Name,Cost per user per hour,Detailed Description,Type,Service Provider,Traffic upperbound
+EC2,0.05,"Elastic Compute Cloud provides resizable compute capacity in the cloud.",Compute,AWS,500000
+S3,0.02,"Simple Storage Service offers scalable object storage for data backup, analytics, etc.",Storage,AWS,1000000
+Lambda,0.03,"Lambda lets you run code without provisioning or managing servers.",Compute,AWS,750000
+RDS,0.04,"Relational Database Service makes it easy to set up, operate, and scale a relational database.",Database,AWS,600000
+Azure Virtual Machines,0.06,"Azure Virtual Machines provide on-demand scalable computing resources.",Compute,Microsoft Azure,450000
+Azure Blob Storage,0.025,"Azure Blob Storage is Microsoft's object storage solution for the cloud.",Storage,Microsoft Azure,900000
+Azure Functions,0.035,"Azure Functions allows you to run event-triggered code without having to explicitly provision or manage infrastructure.",Compute,Microsoft Azure,400000
+Azure SQL Database,0.045,"Azure SQL Database is a fully managed relational database with auto-scale, integral intelligence, and robust security.",Database,Microsoft Azure,350000
+Google Compute Engine,0.055,"Compute Engine offers scalable, high-performance virtual machines.",Compute,Google Cloud Platform,550000
+Google Cloud Storage,0.022,"Cloud Storage provides unified object storage for developers and enterprises.",Storage,Google Cloud Platform,950000
+Google Kubernetes Engine,0.05,"Kubernetes Engine manages your Kubernetes clusters and applications.",Containerization,Google Cloud Platform,300000
+Google BigQuery,0.04,"BigQuery is a serverless, highly scalable, and cost-effective data warehouse.",Analytics,Google Cloud Platform,200000
+IBM Watson,0.07,"Watson provides AI and machine learning services for various applications.",AI,IBM Cloud,150000
+IBM Cloud Functions,0.03,"Cloud Functions allows you to execute code in response to events.",Compute,IBM Cloud,250000
+Oracle Autonomous Database,0.05,"Autonomous Database automates database tuning, security, backups, and updates.",Database,Oracle Cloud,200000
+Oracle Cloud Infrastructure Compute,0.06,"OCI Compute offers scalable compute resources for any workload.",Compute,Oracle Cloud,300000
+DigitalOcean Droplets,0.04,"Droplets are scalable virtual machines with a choice of CPU, memory, and SSD storage.",Compute,DigitalOcean,400000
+DigitalOcean Spaces,0.02,"Spaces provide scalable object storage with a built-in CDN.",Storage,DigitalOcean,500000
+Heroku Dynos,0.05,"Dynos are containers that run the code for your application.",Compute,Heroku,350000
+Heroku Postgres,0.04,"A managed SQL database service for your Heroku apps.",Database,Heroku,300000
+Netlify Build,0.03,"Netlify Build automates the process of building, deploying, and hosting web projects.",Deployment,Netlify,250000
+Netlify Functions,0.035,"Serverless functions that run on Netlify's infrastructure.",Serverless,Netlify,200000
+Vercel Deployments,0.04,"Automated deployments for frontend projects with instant global CDN.",Deployment,Vercel,300000
+Vercel Serverless Functions,0.03,"Serverless functions optimized for frontend developers.",Serverless,Vercel,250000
+Firebase Realtime Database,0.02,"A cloud-hosted NoSQL database that lets you store and sync data in real-time.",Database,Firebase,600000
+Firebase Authentication,0.025,"Provides backend services to authenticate users.",Authentication,Firebase,550000
+GitHub Actions,0.03,"Automate your workflow with GitHub Actions for CI/CD.",CI/CD,GitHub,400000
+GitHub Packages,0.02,"A package hosting service fully integrated with GitHub.",Package Management,GitHub,350000
+GitLab CI/CD,0.035,"Integrated continuous integration and delivery pipelines.",CI/CD,GitLab,300000
+GitLab Container Registry,0.025,"Secure container registry integrated with GitLab.",Container Registry,GitLab,250000
+Bitbucket Pipelines,0.03,"CI/CD service built into Bitbucket.",CI/CD,Bitbucket,200000
+Bitbucket Deployments,0.02,"Deploy your code to various environments seamlessly.",Deployment,Bitbucket,180000
+CircleCI Orbs,0.03,"Reusable packages of CircleCI configuration.",CI/CD,CircleCI,150000
+CircleCI Workflows,0.035,"Define complex pipelines with workflows.",CI/CD,CircleCI,160000
+TravisCI Builds,0.04,"Automate your builds and tests with TravisCI.",CI/CD,TravisCI,140000
+TravisCI Deployments,0.025,"Deploy your application after a successful build.",Deployment,TravisCI,130000
+Docker Containers,0.02,"Lightweight, portable, and self-sufficient containers.",Containerization,Docker,500000
+Docker Hub,0.015,"Cloud-based registry service for Docker images.",Registry,Docker,450000
+Kubernetes Clusters,0.05,"Managed Kubernetes clusters for orchestrating containers.",Containerization,Kubernetes,300000
+Kubernetes Helm,0.03,"Package manager for Kubernetes applications.",Package Management,Kubernetes,250000
+Jenkins Pipelines,0.035,"Automate your software builds and deployments with Jenkins.",CI/CD,Jenkins,200000
+Jenkins Plugins,0.02,"Extend Jenkins functionality with various plugins.",Plugins,Jenkins,180000
+Ansible Playbooks,0.025,"Automate configuration and deployment with Ansible Playbooks.",Automation,Ansible,220000
+Ansible Galaxy,0.02,"Share and reuse Ansible roles and collections.",Automation,Ansible,210000
+Puppet Modules,0.03,"Reusable Puppet code for automating infrastructure.",Automation,Puppet,190000
+Puppet Enterprise,0.04,"Enterprise-grade configuration management with Puppet.",Automation,Puppet,200000
+Chef Recipes,0.025,"Automate infrastructure configuration with Chef Recipes.",Automation,Chef,180000
+Chef Automate,0.035,"A complete solution for continuous automation and compliance.",Automation,Chef,170000
+Datadog APM,0.045,"Application Performance Monitoring to track and optimize performance.",Monitoring,Datadog,300000
+Datadog Logs,0.03,"Centralize and analyze your log data with Datadog.",Logging,Datadog,250000
+New Relic Insights,0.04,"Real-time analytics and monitoring for your applications.",Monitoring,New Relic,220000
+New Relic Alerts,0.025,"Set up alerts based on custom metrics and thresholds.",Alerting,New Relic,200000
+Splunk Enterprise,0.05,"Comprehensive data analysis and visualization platform.",Monitoring,Splunk,350000
+Splunk Cloud,0.045,"Cloud-based version of Splunk Enterprise for data analysis.",Monitoring,Splunk,300000
+Prometheus Metrics,0.02,"Collect and store metrics as time series data.",Monitoring,Prometheus,180000
+Prometheus Alertmanager,0.025,"Handle alerts generated by Prometheus servers.",Alerting,Prometheus,160000
+Grafana Dashboards,0.03,"Visualize your metrics and logs with Grafana.",Visualization,Grafana,200000
+Grafana Loki,0.02,"Log aggregation system designed to work with Grafana.",Logging,Grafana,190000
+Sentry Error Tracking,0.035,"Monitor and fix crashes in real-time.",Monitoring,Sentry,150000
+Sentry Performance,0.03,"Track application performance and identify bottlenecks.",Performance,Sentry,140000
+PagerDuty Incident Response,0.04,"Manage and respond to incidents efficiently.",Incident Management,PagerDuty,130000
+PagerDuty On-Call Scheduling,0.025,"Automate on-call schedules and rotations.",Scheduling,PagerDuty,120000
+Twilio SMS API,0.015,"Send and receive SMS messages globally.",Messaging,Twilio,400000
+Twilio Voice API,0.02,"Integrate voice calls into your applications.",Voice,Twilio,350000
+SendGrid Email API,0.02,"Send transactional and marketing emails.",Email,SendGrid,500000
+SendGrid Marketing Campaigns,0.025,"Manage and send marketing email campaigns.",Marketing,SendGrid,450000
+Mailgun SMTP,0.015,"Reliable SMTP relay for sending emails.",Email,Mailgun,300000
+Mailgun Validation,0.02,"Email address validation and verification services.",Validation,Mailgun,250000
+Cloudflare CDN,0.03,"Distribute your content globally with low latency.",CDN,Cloudflare,600000
+Cloudflare DNS,0.015,"Fast and secure DNS services.",DNS,Cloudflare,550000
+Fastly Edge Compute,0.04,"Run your code at the edge for lower latency.",Compute,Fastly,350000
+Fastly Image Optimization,0.025,"Optimize and transform images on the fly.",Optimization,Fastly,300000
+Akamai Edge Security,0.05,"Protect your applications with advanced security features.",Security,Akamai,400000
+Akamai CDN,0.035,"Deliver content quickly and reliably worldwide.",CDN,Akamai,450000
+Zscaler Secure Web Gateway,0.04,"Protect users from web-based threats.",Security,Zscaler,300000
+Zscaler Cloud Firewall,0.045,"Manage and secure your network traffic with a cloud firewall.",Firewall,Zscaler,280000
+Okta Single Sign-On,0.03,"Simplify user access with single sign-on capabilities.",Identity Management,Okta,500000
+Okta Multi-Factor Authentication,0.025,"Enhance security with multi-factor authentication.",Authentication,Okta,450000
+Auth0 Universal Login,0.035,"Provide a customizable login experience for users.",Authentication,Auth0,400000
+Auth0 Rules,0.02,"Implement custom authentication workflows.",Authentication,Auth0,350000
+OneLogin Single Sign-On,0.03,"Enable secure single sign-on for applications.",Identity Management,OneLogin,300000
+OneLogin Multi-Factor Authentication,0.025,"Add an extra layer of security with multi-factor authentication.",Authentication,OneLogin,280000
+Ping Identity Single Sign-On,0.035,"Streamline access with single sign-on solutions.",Identity Management,Ping Identity,250000
+Ping Identity Adaptive MFA,0.04,"Adaptive multi-factor authentication based on user context.",Authentication,Ping Identity,230000
+Stripe Payments,0.03,"Process online payments seamlessly with Stripe.",Payments,Stripe,600000
+Stripe Billing,0.025,"Manage subscriptions and invoicing with Stripe Billing.",Billing,Stripe,550000
+PayPal Checkout,0.02,"Enable PayPal payments on your website or app.",Payments,PayPal,500000
+PayPal Payouts,0.025,"Send mass payments to multiple recipients easily.",Payments,PayPal,450000
+Square POS,0.035,"Point-of-sale system for in-person transactions.",Payments,Square,400000
+Square Online Checkout,0.02,"Accept online payments with a simple checkout.",Payments,Square,350000
+Braintree Gateway,0.03,"Flexible payment gateway for e-commerce applications.",Payments,Braintree,300000
+Braintree Marketplace,0.035,"Manage payments for marketplace platforms.",Payments,Braintree,280000
+Shopify Payments,0.025,"Integrated payment processing for Shopify stores.",E-commerce,Shopify,500000
+Shopify Plus,0.04,"Enterprise-level e-commerce solution with advanced features.",E-commerce,Shopify,450000
+Magento Commerce,0.045,"Robust e-commerce platform with customizable features.",E-commerce,Magento,400000
+Magento Cloud,0.05,"Cloud-hosted version of Magento with scalability.",E-commerce,Magento,350000
+Wix Editor,0.02,"Drag-and-drop website builder for creating professional sites.",Website Builder,Wix,300000
+Wix SEO Tools,0.015,"Optimize your website for search engines with Wix.",SEO,Wix,250000
+Weebly Drag-and-Drop Builder,0.02,"Easily build websites with Weebly's drag-and-drop interface.",Website Builder,Weebly,200000
+Weebly E-commerce,0.03,"Add e-commerce functionality to your Weebly website.",E-commerce,Weebly,180000
+WordPress Themes,0.015,"Customize the appearance of your WordPress site with themes.",Website Builder,WordPress,400000
+WordPress Plugins,0.02,"Extend the functionality of your WordPress site with plugins.",Plugins,WordPress,350000
+Contentful Content Delivery API,0.03,"Deliver content to any platform with Contentful's API.",Content Management,Contentful,300000
+Contentful Content Management API,0.035,"Manage your digital content with Contentful's API.",Content Management,Contentful,280000
+Strapi API Builder,0.025,"Build customizable APIs with Strapi's API builder.",Content Management,Strapi,250000
+Strapi Content Types,0.02,"Define and manage content types in Strapi.",Content Management,Strapi,230000
+Slack Channels,0.015,"Organize conversations into channels for teams.",Communication,Slack,500000
+Slack Integrations,0.02,"Connect Slack with other tools and services.",Integration,Slack,450000
+Zoom Meetings,0.025,"Host virtual meetings with Zoom's video conferencing.",Communication,Zoom,600000
+Zoom Webinars,0.03,"Conduct large-scale webinars with Zoom.",Webinars,Zoom,550000
+Microsoft Teams Channels,0.02,"Collaborate within teams using dedicated channels.",Communication,Microsoft Teams,400000
+Microsoft Teams Apps,0.025,"Enhance Teams with various integrated applications.",Integration,Microsoft Teams,350000
+Discord Servers,0.015,"Create and manage communities with Discord servers.",Communication,Discord,300000
+Discord Bots,0.02,"Automate tasks and enhance interactions with bots.",Automation,Discord,280000
+Trello Boards,0.015,"Organize tasks and projects using Trello boards.",Project Management,Trello,200000
+Trello Power-Ups,0.02,"Extend Trello's functionality with Power-Ups.",Enhancements,Trello,180000
+Asana Projects,0.02,"Manage your work with Asana's project features.",Project Management,Asana,250000
+Asana Timelines,0.025,"Visualize project schedules with Asana timelines.",Visualization,Asana,230000
+Jira Issues,0.02,"Track and manage issues and bugs with Jira.",Project Management,Jira,300000
+Jira Workflows,0.025,"Customize workflows to fit your development process.",Workflow,Jira,280000
+Notion Pages,0.015,"Create and organize content with Notion pages.",Productivity,Notion,350000
+Notion Databases,0.02,"Manage data and information with Notion databases.",Database,Notion,330000
+Evernote Notebooks,0.015,"Organize notes into notebooks for easy access.",Productivity,Evernote,300000
+Evernote Templates,0.02,"Use templates to streamline note-taking.",Templates,Evernote,280000
+Dropbox File Sync,0.025,"Synchronize files across devices with Dropbox.",Storage,Dropbox,400000
+Dropbox Paper,0.02,"Collaborate on documents with Dropbox Paper.",Collaboration,Dropbox,350000
+Box Content Management,0.03,"Manage and secure your content with Box.",Storage,Box,300000
+Box Integrations,0.025,"Integrate Box with other business tools.",Integration,Box,280000
+OneDrive File Sync,0.02,"Sync your files across devices with OneDrive.",Storage,OneDrive,450000
+OneDrive for Business,0.03,"Enhanced storage and collaboration features for businesses.",Business,OneDrive,400000
