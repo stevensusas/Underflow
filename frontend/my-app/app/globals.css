@@ -92,12 +92,8 @@ body {
 }
 
 .uBox1 {
-  background-color: rgb(100, 255, 255);
-  height: 100px;
-  width: 100px;
+  /* background-color: rgb(100, 255, 255); */
+  min-height: 100px;
+  /* width: 100px; */
 }
 
-.uRow {
-  margin-top: 10px;
-  margin-bottom: 10px
-}
