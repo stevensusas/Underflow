@@ -1,0 +1,6 @@
+#!/Users/stevensu/Desktop/StackUnderflow-1/core/underflow_sdk_parent/underflow/bin/python
+import sys
+from underflow_cli.cli import cli
+
+if __name__ == '__main__':
+    sys.exit(cli())
