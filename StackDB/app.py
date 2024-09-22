@@ -416,11 +416,11 @@ def api_current_state():
             "revenueComparison": [
                 {"label": "Sep", "original": 186, "new": 80},
                 {"label": "Oct", "original": 305, "new": 200},
-                {"label": "Nov", "original": 237, "new": 120},
+                {"label": "Nov", "original": 237, "new": 150},
             ],
             "trafficCostComparison": [
                 {"label": "1", "new": 80},
-                {"label": "2", "new": 200},
+                {"label": "2", "new": 180},
                 {"label": "3", "new": 120},
             ],
         }

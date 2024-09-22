@@ -92,53 +92,6 @@ function USummaryBlock(props) {
   );
 }
 
-function UTrafficCostBlock(props) {
-  return (
-    <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
-      <CardHeader>
-        <CardTitle>{props.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="gap-1">
-        <ChartContainer config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Line
-              dataKey="desktop"
-              type="natural"
-              stroke="var(--color-desktop)"
-              strokeWidth={2}
-              dot={{
-                fill: "var(--color-desktop)",
-              }}
-              activeDot={{
-                r: 6,
-              }}
-            />
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function Charts() {
   const [monthlyCost, setMonthlyCost] = useState("");
   const [estimatedSavings, setEstimatedSavings] = useState("");
@@ -146,8 +99,8 @@ export default function Charts() {
   const [currentTraffic, setCurrentTraffic] = useState("");
   const [summary, setSummary] = useState("");
   const [aiAssistantResp, setAiAssistantResp] = useState("");
-  const [costComparisonData, setCostComparisonData] = useState({});
-  const [revenueComparisonData, setRevenueComparisonData] = useState({});
+  const [costComparisonData, setCostComparisonData] = useState(null);
+  const [revenueComparisonData, setRevenueComparisonData] = useState(null);
   const [trafficComparisonData, setTrafficComparisonData] = useState({});
 
   useEffect(() => {
@@ -160,9 +113,8 @@ export default function Charts() {
       setSummary(res.data.content.summary.value);
       setAiAssistantResp(res.data.content.aiAssistantResp.value);
       setCostComparisonData(res.data.content.costComparison);
-      // setRevenueComparisonData(res.data.content.revenueComparison);
-
-      // console.log(`"costComparisonData: ${costComparisonData}`);
+      setRevenueComparisonData(res.data.content.revenueComparison);
+      setTrafficComparisonData(res.data.content.trafficCostComparison);
 
       function sleep(time) {
         return new Promise((resolve) => setTimeout(resolve, time));
@@ -175,6 +127,53 @@ export default function Charts() {
     console.log("testing integration. ");
   }, []);
 
+  function UTrafficCostBlock(props) {
+    return (
+      <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
+        <CardHeader>
+          <CardTitle>{props.title}</CardTitle>
+        </CardHeader>
+        <CardContent className="gap-1">
+          <ChartContainer config={chartConfig}>
+            <LineChart
+              accessibilityLayer
+              data={trafficComparisonData}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Line
+                dataKey="new"
+                type="natural"
+                stroke="var(--color-desktop)"
+                strokeWidth={2}
+                dot={{
+                  fill: "var(--color-desktop)",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
+              />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+    );
+  }
+
   function URevenueComparisionBlock(props) {
     return (
       <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
@@ -185,7 +184,7 @@ export default function Charts() {
           <ChartContainer config={chartConfig}>
             <AreaChart
               accessibilityLayer
-              data={chartData}
+              data={revenueComparisonData}
               margin={{
                 left: 12,
                 right: 12,
@@ -193,7 +192,7 @@ export default function Charts() {
             >
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="label"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -227,7 +226,7 @@ export default function Charts() {
                 </linearGradient>
               </defs>
               <Area
-                dataKey="mobile"
+                dataKey="new"
                 type="natural"
                 fill="url(#fillMobile)"
                 fillOpacity={0.4}
@@ -235,7 +234,7 @@ export default function Charts() {
                 stackId="a"
               />
               <Area
-                dataKey="desktop"
+                dataKey="original"
                 type="natural"
                 fill="url(#fillDesktop)"
                 fillOpacity={0.4}
@@ -308,14 +307,14 @@ export default function Charts() {
         </div>
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock value={serverUptime} featureName={"Server Uptime"} />
-          <URevenueComparisionBlock title={"[TODO] Comparison of Revenue"} />
+          <URevenueComparisionBlock title={"Comparison of Revenue"} />
         </div>
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock
             value={currentTraffic}
             featureName={"Current Traffic"}
           />
-          <UTrafficCostBlock title={"[TODO] Traffic vs Cost"} />
+          <UTrafficCostBlock title={"Traffic vs Cost"} />
         </div>
       </div>
     </main>
