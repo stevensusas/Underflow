@@ -484,7 +484,31 @@ def api_current_state():
         for tmp in local_state.original_service
     ]
 
+    unique_types = []
+    for i in range(len(local_state.original_service)):
+        tmp = local_state.original_service[i]
+        if tmp["type"] not in unique_types:
+            unique_types.append(tmp["type"])
+
+    for i in range(len(local_state.optimal_service)):
+        tmp = local_state.optimal_service[i]
+        if tmp["type"] not in unique_types:
+            unique_types.append(tmp["type"])
+
+    cost_comparison = []
+    for i in range(len(unique_types)):
+        curr_dict = {"label": unique_types[i], "original": 0, "new": 0}
+        for j in range(len(local_state.original_service)):
+            if local_state.original_service[j]["type"] == unique_types[i]:
+                curr_dict["original"] += 1
+        for j in range(len(local_state.optimal_service)):
+            if local_state.optimal_service[j]["type"] == unique_types[i]:
+                curr_dict["new"] += 1
+        cost_comparison.append(curr_dict)
+
     print(traffic_cost)
+    print("cost comparison:")
+    print(cost_comparison)
 
     return {
         "content": {
@@ -516,6 +540,7 @@ def api_current_state():
                 # {"label": "Storage", "original": 305, "new": 200},
                 # {"label": "Distribution", "original": 237, "new": 120},
             ],
+            "costComparisonV2": cost_comparison,
             "revenueComparison": [
                 {"label": "Sep", "original": 0, "new": 0},
                 # {"label": "Oct", "original": 305, "new": 200},

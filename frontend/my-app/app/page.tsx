@@ -182,7 +182,7 @@ export default function Charts() {
       setCurrentTraffic(res.data.content.currentTraffic.value);
       setSummary(res.data.content.summary.value);
       setAiAssistantResp(res.data.content.aiAssistantResp.value);
-      setCostComparisonData(res.data.content.costComparison);
+      setCostComparisonData(res.data.content.costComparisonV2);
       setRevenueComparisonData(res.data.content.revenueComparison);
       setTrafficComparisonData(res.data.content.trafficCostComparison);
       setRepositoryName(res.data.content.repositoryName);
