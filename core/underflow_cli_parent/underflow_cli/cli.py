@@ -12,6 +12,7 @@ import base64
 import mimetypes
 import dotenv
 import os
+import pyautogui
 
 DO_FRONTEND_STUFF = False
 
@@ -31,6 +32,46 @@ CODE_FILE_EXTENSIONS = {
     ".rs",
     ".swift",
 }
+
+
+def summarize_for_generation(code_str, recommendations):
+    stream = False
+    url = "https://proxy.tune.app/chat/completions"
+    headers = {
+        "Authorization": os.getenv("TUNE_KEY"),
+        "Content-Type": "application/json",
+    }
+    data = {
+        "temperature": 0.8,
+        "messages": [
+            {
+                "role": "system",
+                "content": "Given a long code string and recommendations, give instructions to a machine on how to use those recommendations to generate new code. Write one single sentence, 20 words or less. Do not write more than 20 words. Make sure you are providing instructions to generatea code to a machine. ",
+            },
+            {
+                "role": "user",
+                "content": f"code string: {code_str}, recommendations: {recommendations}",
+            },
+        ],
+        "model": "anthropic/claude-3-haiku",
+        "stream": stream,
+        "frequency_penalty": 0,
+        "max_tokens": 900,
+    }
+    response = requests.post(url, headers=headers, json=data)
+    msg = response.json()["choices"][0]["message"]["content"]
+    return msg
+
+
+def create_defang(instructions):
+    subprocess.Popen("defang generate", shell=True)
+    time.sleep(1)
+    pyautogui.press("enter")
+    time.sleep(2)
+    pyautogui.press("enter")
+    pyautogui.write(instructions, interval=0.01)
+    pyautogui.press("enter")
+    pyautogui.press("enter")
 
 
 def get_repository(repository_name: str):
@@ -99,6 +140,8 @@ def cli(repository: str, traffic: int):
     code_str = get_repository(repository)
     resp = check_for_external_services(code_str=code_str, traffic=traffic)
 
+    # create_defang()
+
     if DO_FRONTEND_STUFF:
         shell_command = f"cd ../../frontend/my-app && npm run dev"
 
@@ -111,9 +154,9 @@ def cli(repository: str, traffic: int):
         except Exception as e:
             print(f"Failed to launch browser: {e}")
 
-    print("Your original Tech Stack:" + json.dumps(resp[0], indent=4))
-    print("Your Optimized Tech Stack:" + json.dumps(resp[1], indent=4))
-    print("Technical Report:" + json.dumps(resp[2], indent=4))
+    # print("Your original Tech Stack:" + json.dumps(resp[0], indent=4))
+    # print("Your Optimized Tech Stack:" + json.dumps(resp[1], indent=4))
+    # print("Technical Report:" + json.dumps(resp[2], indent=4))
 
     json_body = {}
     json_body["original_service"] = resp[0]
@@ -121,3 +164,9 @@ def cli(repository: str, traffic: int):
     json_body["tech_report"] = resp[2]
     json_body["repository_name"] = repository
     resp = requests.post("http://127.0.0.1:8000/api/set_info", json=json_body)
+
+    instructions = summarize_for_generation(
+        code_str=code_str, recommendations=json_body["tech_report"]["report"]
+    )
+    print(instructions)
+    create_defang(instructions=instructions)

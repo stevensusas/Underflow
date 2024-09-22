@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Any, Dict, List
 
 import uvicorn
+import requests
 from cerebras.cloud.sdk import Cerebras
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -471,6 +472,33 @@ async def api_set_info(request: Request):
     return {"data": resp}
 
 
+def get_url_for(service_name):
+    stream = False
+    url = "https://proxy.tune.app/chat/completions"
+    headers = {
+        "Authorization": os.getenv("TUNE_KEY"),
+        "Content-Type": "application/json",
+    }
+    data = {
+        "temperature": 0.8,
+        "messages": [
+            {
+                "role": "system",
+                "content": "Only return the project URL of what the user sends you. Only return HTTP URL, nothing else. ",
+            },
+            {"role": "user", "content": service_name},
+            # {"role": "assistant", "content": "https://aws.amazon.com/s3/"},
+        ],
+        "model": "anthropic/claude-3-haiku",
+        "stream": stream,
+        "frequency_penalty": 0,
+        "max_tokens": 900,
+    }
+    response = requests.post(url, headers=headers, json=data)
+    url = response.json()["choices"][0]["message"]["content"]
+    return url
+
+
 @app.get("/api/current_state")
 def api_current_state():
     global local_state
@@ -513,7 +541,12 @@ def api_current_state():
     return {
         "content": {
             "oldServices": [
-                {"name": tmp["name"], "type": tmp["type"], "cost": f"$ {tmp['cost']}"}
+                {
+                    "name": tmp["name"],
+                    "type": tmp["type"],
+                    "cost": f"$ {tmp['cost']}",
+                    "url": get_url_for(tmp["name"]),
+                }
                 for tmp in local_state.original_service
             ],
             "newServices": [
@@ -521,6 +554,7 @@ def api_current_state():
                     "name": tmp["name"],
                     "type": tmp["type"],
                     "cost": f"$ {round(tmp['cost'],2)}",
+                    "url": get_url_for(tmp["name"]),
                 }
                 for tmp in local_state.optimal_service
             ],
