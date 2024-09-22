@@ -488,6 +488,18 @@ def api_current_state():
 
     return {
         "content": {
+            "oldServices": [
+                {"name": tmp["name"], "type": tmp["type"], "cost": f"$ {tmp['cost']}"}
+                for tmp in local_state.original_service
+            ],
+            "newServices": [
+                {
+                    "name": tmp["name"],
+                    "type": tmp["type"],
+                    "cost": f"$ {round(tmp['cost'],2)}",
+                }
+                for tmp in local_state.optimal_service
+            ],
             "currentMonthlyCost": {"value": f"${round(original_cost,2)}"},
             "newMonthlyCost": {"value": f"${round(optimal_cost, 2)}"},
             "estimatedSavings": {
