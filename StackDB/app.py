@@ -21,7 +21,6 @@ DB_NAME = "StackUnderflow"
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
 # Define the ServiceType Enum
 class ServiceType(Enum):
     COMPUTE = "Compute"
@@ -103,6 +102,9 @@ class ReportResponse(BaseModel):
 class API:
     def __init__(self):
         self.connection = self.get_db_connection()
+        self.original_services = None
+        self.optimized_services = None
+        self.technical_report = None
 
     def get_db_connection(self):
         try:
@@ -213,6 +215,15 @@ class API:
         if self.connection and self.connection.is_connected():
             self.connection.close()
             print("Database connection closed.")
+    
+    def update_original_services(self, services: List[ServiceResponse]):
+        self.original_services = services
+    
+    def update_optimized_services(self, services: List[ServiceResponse]):
+        self.optimized_services = services
+
+    def update_technical_report(self, report: ReportResponse):
+        self.technical_report = report
 
 
 # Initialize FastAPI
@@ -251,6 +262,7 @@ def get_original_services(request: ServiceRequest):
             raise HTTPException(
                 status_code=404, detail="No services found for the provided names."
             )
+        api_handler.update_original_services([ServiceResponse(**service.dict()) for service in services])
         return [ServiceResponse(**service.dict()) for service in services]
 
     except Error as db_error:
@@ -287,7 +299,7 @@ def get_optimal_services(request: ServiceRequest):
             raise HTTPException(
                 status_code=404, detail="No optimal services could be identified."
             )
-
+        api_handler.update_optimized_services([ServiceResponse(**service.dict()) for service in optimal_services])
         return [ServiceResponse(**service.dict()) for service in optimal_services]
 
     except Error as db_error:
@@ -374,6 +386,7 @@ def generate_technical_report(request: ServiceRequest):
         # Extract the report from OpenAI's response
         report = response.choices[0].message.content.strip()
         print(f"Generated technical report: {report}")
+        api_handler.update_technical_report(report)
         return ReportResponse(report=report)
 
     except OpenAIError as oe:
@@ -426,6 +439,18 @@ def api_current_state():
         }
     }
 
+
+@app.get("/cached-original-services")
+def cached_original_services():
+    return api_handler.original_services
+
+@app.get("/cached-optimized-services")
+def cached_optimized_services():
+    return api_handler.optimized_services
+
+@app.get("/cached-technical-report")
+def cached_optimized_services():
+    return api_handler.technical_report
 
 # Shutdown Event to close the DB connection
 @app.on_event("shutdown")

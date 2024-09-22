@@ -6,6 +6,7 @@ import subprocess
 import os
 import webbrowser
 import time
+import request
 
 @click.command
 @click.argument("uri")
@@ -23,6 +24,9 @@ def cli(uri: str, traffic: int):
     subprocess.Popen(shell_command, shell=True)
 
     time.sleep(3)
+
+    
+
     try:
         webbrowser.open("http://localhost:3000")
         print("Browser launched successfully.")
