@@ -2,30 +2,23 @@
 
 import axios from "axios";
 
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
-  Label,
-  LabelList,
   Line,
   LineChart,
-  PolarAngleAxis,
-  RadialBar,
-  RadialBarChart,
-  Rectangle,
-  ReferenceLine,
   XAxis,
-  YAxis,
 } from "recharts";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components//ui/card";
@@ -34,7 +27,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components//ui/chart";
-import { Separator } from "@/components//ui/separator";
 import { useEffect, useState } from "react";
 
 export const description = "A collection of health charts.";
@@ -72,11 +64,16 @@ function USimpleBlock(props) {
 
 function UAiAssistant(props) {
   return (
-    <Card className="max-w-xs uBox1">
+    <Card className="max-w-xs uBoxReport">
       <CardHeader>
         <CardTitle>{props.title}</CardTitle>
       </CardHeader>
-      <CardContent className="gap-1">{props.description}</CardContent>
+
+      <CardContent className="gap-1">
+        <ScrollArea className="h-[250px] w-full rounded-md border p-4">
+          {props.description}
+        </ScrollArea>
+      </CardContent>
     </Card>
   );
 }
@@ -92,53 +89,6 @@ function USummaryBlock(props) {
   );
 }
 
-function UTrafficCostBlock(props) {
-  return (
-    <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
-      <CardHeader>
-        <CardTitle>{props.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="gap-1">
-        <ChartContainer config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Line
-              dataKey="desktop"
-              type="natural"
-              stroke="var(--color-desktop)"
-              strokeWidth={2}
-              dot={{
-                fill: "var(--color-desktop)",
-              }}
-              activeDot={{
-                r: 6,
-              }}
-            />
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function Charts() {
   const [monthlyCost, setMonthlyCost] = useState("");
   const [estimatedSavings, setEstimatedSavings] = useState("");
@@ -146,8 +96,8 @@ export default function Charts() {
   const [currentTraffic, setCurrentTraffic] = useState("");
   const [summary, setSummary] = useState("");
   const [aiAssistantResp, setAiAssistantResp] = useState("");
-  const [costComparisonData, setCostComparisonData] = useState({});
-  const [revenueComparisonData, setRevenueComparisonData] = useState({});
+  const [costComparisonData, setCostComparisonData] = useState(null);
+  const [revenueComparisonData, setRevenueComparisonData] = useState(null);
   const [trafficComparisonData, setTrafficComparisonData] = useState({});
 
   useEffect(() => {
@@ -160,9 +110,8 @@ export default function Charts() {
       setSummary(res.data.content.summary.value);
       setAiAssistantResp(res.data.content.aiAssistantResp.value);
       setCostComparisonData(res.data.content.costComparison);
-      // setRevenueComparisonData(res.data.content.revenueComparison);
-
-      // console.log(`"costComparisonData: ${costComparisonData}`);
+      setRevenueComparisonData(res.data.content.revenueComparison);
+      setTrafficComparisonData(res.data.content.trafficCostComparison);
 
       function sleep(time) {
         return new Promise((resolve) => setTimeout(resolve, time));
@@ -175,6 +124,56 @@ export default function Charts() {
     console.log("testing integration. ");
   }, []);
 
+  function UTrafficCostBlock(props) {
+    return (
+      <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
+        <CardHeader>
+          <CardTitle>{props.title}</CardTitle>
+        </CardHeader>
+        <CardContent className="gap-1">
+          <ChartContainer config={chartConfig}>
+            <LineChart
+              accessibilityLayer
+              data={[
+                { label: 0.03, new: 400000.0, original: 400000.0 },
+                { label: 0.022, new: 950000.0, original: 950000.0 },
+              ]}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                // tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Line
+                dataKey="new"
+                type="natural"
+                stroke="var(--color-desktop)"
+                strokeWidth={2}
+                dot={{
+                  fill: "var(--color-desktop)",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
+              />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+    );
+  }
+
   function URevenueComparisionBlock(props) {
     return (
       <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
@@ -185,7 +184,7 @@ export default function Charts() {
           <ChartContainer config={chartConfig}>
             <AreaChart
               accessibilityLayer
-              data={chartData}
+              data={revenueComparisonData}
               margin={{
                 left: 12,
                 right: 12,
@@ -193,7 +192,7 @@ export default function Charts() {
             >
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="label"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -227,7 +226,7 @@ export default function Charts() {
                 </linearGradient>
               </defs>
               <Area
-                dataKey="mobile"
+                dataKey="new"
                 type="natural"
                 fill="url(#fillMobile)"
                 fillOpacity={0.4}
@@ -235,7 +234,7 @@ export default function Charts() {
                 stackId="a"
               />
               <Area
-                dataKey="desktop"
+                dataKey="original"
                 type="natural"
                 fill="url(#fillDesktop)"
                 fillOpacity={0.4}
@@ -266,7 +265,7 @@ export default function Charts() {
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+                // tickFormatter={(value) => value.slice(0, 3)}
               />
               <ChartTooltip
                 cursor={false}
@@ -301,21 +300,23 @@ export default function Charts() {
             featureName={"Estimated Savings"}
           />
           <USummaryBlock title={"Summary"} description={summary} />
+
           <UCostComparisionBlock
             title={"Cost Comparison"}
             chartData={costComparisonData}
           />
         </div>
-        <div className="grid w-full flex-1 gap-6">
-          <USimpleBlock value={serverUptime} featureName={"Server Uptime"} />
-          <URevenueComparisionBlock title={"[TODO] Comparison of Revenue"} />
-        </div>
+        {/* <div className="grid w-full flex-1 gap-6"> */}
+
+        {/* <USimpleBlock value={serverUptime} featureName={"Server Uptime"} /> */}
+        {/* <URevenueComparisionBlock title={"Comparison of Revenue"} /> */}
+        {/* </div> */}
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock
             value={currentTraffic}
             featureName={"Current Traffic"}
           />
-          <UTrafficCostBlock title={"[TODO] Traffic vs Cost"} />
+          <UTrafficCostBlock title={"Traffic vs Cost"} />
         </div>
       </div>
     </main>
