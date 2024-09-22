@@ -4,12 +4,15 @@ from enum import Enum
 from typing import Any, Dict, List
 
 import uvicorn
+from cerebras.cloud.sdk import Cerebras
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from mysql.connector import Error, connect
 from openai import OpenAI, OpenAIError
 from pydantic import BaseModel
+
+load_dotenv()
 
 # Database Configuration
 DB_HOST = "stackunderflow.cha8ies4obs2.us-east-1.rds.amazonaws.com"  # Replace with your RDS endpoint
@@ -19,7 +22,44 @@ DB_PASSWORD = "12345678"  # Replace with your MySQL password
 DB_NAME = "StackUnderflow"
 
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("X_OPENAI_API_KEY"))
+cerebras_client = Cerebras(
+    # This is the default and can be omitted
+    api_key=os.environ.get("CEREBRAS_API_KEY"),
+)
+
+
+class LocalState:
+    def __init__(self):
+        self.original_service = None
+        self.optimal_service = None
+        self.tech_report = None
+
+    def update_original_service(self, data):
+        self.original_service = data
+
+    def update_optimal_service(self, data):
+        self.optimal_service = data
+
+    def update_tech_report(self, data):
+        self.tech_report = data
+
+
+def summarize(text):
+    chat_completion = cerebras_client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": f"Summarize the following text in 20 words or less: {text}",
+            }
+        ],
+        model="llama3.1-8b",
+    )
+    return chat_completion.choices[0].message.content
+
+
+local_state = LocalState()
+
 
 # Define the ServiceType Enum
 class ServiceType(Enum):
@@ -215,10 +255,10 @@ class API:
         if self.connection and self.connection.is_connected():
             self.connection.close()
             print("Database connection closed.")
-    
+
     def update_original_services(self, services: List[ServiceResponse]):
         self.original_services = services
-    
+
     def update_optimized_services(self, services: List[ServiceResponse]):
         self.optimized_services = services
 
@@ -262,7 +302,9 @@ def get_original_services(request: ServiceRequest):
             raise HTTPException(
                 status_code=404, detail="No services found for the provided names."
             )
-        api_handler.update_original_services([ServiceResponse(**service.dict()) for service in services])
+        api_handler.update_original_services(
+            [ServiceResponse(**service.dict()) for service in services]
+        )
         return [ServiceResponse(**service.dict()) for service in services]
 
     except Error as db_error:
@@ -299,7 +341,9 @@ def get_optimal_services(request: ServiceRequest):
             raise HTTPException(
                 status_code=404, detail="No optimal services could be identified."
             )
-        api_handler.update_optimized_services([ServiceResponse(**service.dict()) for service in optimal_services])
+        api_handler.update_optimized_services(
+            [ServiceResponse(**service.dict()) for service in optimal_services]
+        )
         return [ServiceResponse(**service.dict()) for service in optimal_services]
 
     except Error as db_error:
@@ -411,31 +455,60 @@ def read_root():
     return {"message": "Welcome to the StackUnderflow Service Optimizer API!"}
 
 
+@app.post("/api/set_info")
+async def api_set_info(request: Request):
+    global local_state
+
+    resp = await request.json()
+    local_state.update_original_service(resp["original_service"])
+    local_state.update_optimal_service(resp["optimal_service"])
+    local_state.update_tech_report(resp["tech_report"])
+    return {"data": resp}
+
+
 @app.get("/api/current_state")
 def api_current_state():
+    global local_state
+
+    print(local_state.optimal_service)
+    original_cost = sum([tmp["cost"] for tmp in local_state.original_service])
+    optimal_cost = sum([tmp["cost"] for tmp in local_state.optimal_service])
+
+    traffic_cost = [
+        {"label": tmp["cost"], "new": tmp["traffic"], "original": tmp["traffic"]}
+        for tmp in local_state.original_service
+    ]
+
+    print(traffic_cost)
+
     return {
         "content": {
-            "currentMonthlyCost": {"value": "$59.00"},
-            "estimatedSavings": {"value": "40%"},
-            "serverUptime": {"value": "20%"},
-            "currentTraffic": {"value": "15,000"},
-            "summary": {"value": "Placeholder description"},
-            "aiAssistantResp": {"value": "Assistant response."},
+            "currentMonthlyCost": {"value": f"${round(original_cost,2)}"},
+            "estimatedSavings": {
+                "value": f"{round(100*(original_cost-optimal_cost)/original_cost,1)}%"
+            },
+            "serverUptime": {"value": "0%"},
+            "currentTraffic": {
+                "value": f"{local_state.original_service[0]['traffic']}"
+            },
+            "summary": {"value": summarize(local_state.tech_report["report"])},
+            "aiAssistantResp": {"value": local_state.tech_report["report"]},
             "costComparison": [
-                {"label": "Cloud", "original": 186, "new": 80},
-                {"label": "Storage", "original": 305, "new": 200},
-                {"label": "Distribution", "original": 237, "new": 120},
+                {"label": "Cloud", "original": original_cost, "new": optimal_cost},
+                # {"label": "Storage", "original": 305, "new": 200},
+                # {"label": "Distribution", "original": 237, "new": 120},
             ],
             "revenueComparison": [
-                {"label": "Sep", "original": 186, "new": 80},
-                {"label": "Oct", "original": 305, "new": 200},
-                {"label": "Nov", "original": 237, "new": 120},
+                {"label": "Sep", "original": 0, "new": 0},
+                # {"label": "Oct", "original": 305, "new": 200},
+                # {"label": "Nov", "original": 237, "new": 150},
             ],
-            "trafficCostComparison": [
-                {"label": "1", "new": 80},
-                {"label": "2", "new": 200},
-                {"label": "3", "new": 120},
-            ],
+            "trafficCostComparison": traffic_cost,
+            # [
+            #     {"label": "1", "new": 0},
+            #     # {"label": "2", "new": 180},
+            #     # {"label": "3", "new": 120},
+            # ],
         }
     }
 
@@ -444,13 +517,16 @@ def api_current_state():
 def cached_original_services():
     return api_handler.original_services
 
+
 @app.get("/cached-optimized-services")
 def cached_optimized_services():
     return api_handler.optimized_services
 
+
 @app.get("/cached-technical-report")
 def cached_optimized_services():
     return api_handler.technical_report
+
 
 # Shutdown Event to close the DB connection
 @app.on_event("shutdown")
