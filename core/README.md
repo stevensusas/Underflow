@@ -13,7 +13,9 @@ set CEREBRAS_API_KEY=<API KEY>
 ### (2) Install the SDK
 
 1. Go to the `underflow_sdk_parent` folder
-2. Run `pip install -e .`
+2. create virtual environment with  `python3 -m venv underflow-env`
+3. activate virtual environemtnw with  `source underflow-env/bin/activate `
+4. Run `pip install -e .`
 
 ### (3) Set up the CLI
 
