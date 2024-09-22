@@ -308,14 +308,14 @@ export default function Charts() {
         </div>
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock value={serverUptime} featureName={"Server Uptime"} />
-          <URevenueComparisionBlock title={"Comparison of Revenue"} />
+          <URevenueComparisionBlock title={"[TODO] Comparison of Revenue"} />
         </div>
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock
             value={currentTraffic}
             featureName={"Current Traffic"}
           />
-          <UTrafficCostBlock title={"Traffic vs Cost"} />
+          <UTrafficCostBlock title={"[TODO] Traffic vs Cost"} />
         </div>
       </div>
     </main>
