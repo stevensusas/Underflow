@@ -91,6 +91,7 @@ function USummaryBlock(props) {
 
 export default function Charts() {
   const [monthlyCost, setMonthlyCost] = useState("");
+  const [newMonthlyCost, setNewMonthlyCost] = useState("");
   const [estimatedSavings, setEstimatedSavings] = useState("");
   const [serverUptime, setServerUptime] = useState("");
   const [currentTraffic, setCurrentTraffic] = useState("");
@@ -99,11 +100,13 @@ export default function Charts() {
   const [costComparisonData, setCostComparisonData] = useState(null);
   const [revenueComparisonData, setRevenueComparisonData] = useState(null);
   const [trafficComparisonData, setTrafficComparisonData] = useState({});
+  const [repositoryName, setRepositoryName] = useState("");
 
   useEffect(() => {
     axios.get("http://localhost:8000/api/current_state").then((res) => {
       console.log(res);
       setMonthlyCost(res.data.content.currentMonthlyCost.value);
+      setNewMonthlyCost(res.data.content.newMonthlyCost.value);
       setEstimatedSavings(res.data.content.estimatedSavings.value);
       setServerUptime(res.data.content.serverUptime.value);
       setCurrentTraffic(res.data.content.currentTraffic.value);
@@ -112,6 +115,7 @@ export default function Charts() {
       setCostComparisonData(res.data.content.costComparison);
       setRevenueComparisonData(res.data.content.revenueComparison);
       setTrafficComparisonData(res.data.content.trafficCostComparison);
+      setRepositoryName(res.data.content.repositoryName);
 
       function sleep(time) {
         return new Promise((resolve) => setTimeout(resolve, time));
@@ -282,8 +286,16 @@ export default function Charts() {
 
   return (
     <main>
-      <div className="chart-wrapper mx-auto flex max-w-6xl flex-col flex-wrap items-start justify-center gap-6 p-6 sm:flex-row">
-        <p className="text-xl font-bold">Tech Stack Optimization Dashboard</p>
+      <div className="justify-center gap-6 p-6 sm:flex-row">
+        <center>
+          <p className="text-3xl font-bold">
+            Tech Stack Optimization Dashboard
+          </p>
+          <p>
+            Results for{" "}
+            <span className="font-mono font-thin">{repositoryName}</span>
+          </p>
+        </center>
       </div>
 
       <div className="chart-wrapper mx-auto flex max-w-6xl flex-col flex-wrap items-start justify-center gap-6 p-6 sm:flex-row sm:p-8">
@@ -295,6 +307,10 @@ export default function Charts() {
           <UAiAssistant title={"AI Assistant"} description={aiAssistantResp} />
         </div>
         <div className="grid w-full flex-1 gap-6">
+          <USimpleBlock
+            value={newMonthlyCost}
+            featureName={"New Monthly Cost"}
+          />
           <USimpleBlock
             value={estimatedSavings}
             featureName={"Estimated Savings"}

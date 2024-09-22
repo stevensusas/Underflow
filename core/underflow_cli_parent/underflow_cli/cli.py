@@ -13,9 +13,25 @@ import mimetypes
 import dotenv
 import os
 
+DO_FRONTEND_STUFF = False
+
 dotenv.load_dotenv()
 # Set of file extensions that are commonly used for code files
-CODE_FILE_EXTENSIONS = {".py", ".js", ".java", ".c", ".cpp", ".cs", ".rb", ".php", ".go", ".ts", ".rs", ".swift"}
+CODE_FILE_EXTENSIONS = {
+    ".py",
+    ".js",
+    ".java",
+    ".c",
+    ".cpp",
+    ".cs",
+    ".rb",
+    ".php",
+    ".go",
+    ".ts",
+    ".rs",
+    ".swift",
+}
+
 
 def get_repository(repository_name: str):
     print("Scanning your codebase...")
@@ -26,7 +42,9 @@ def get_repository(repository_name: str):
     repo = g.get_repo(repository_name)
 
     # Get the repository tree for the correct branch (e.g., 'main' or 'master')
-    contents = repo.get_contents("", ref="master")  # Change 'master' if the repo uses a different branch
+    contents = repo.get_contents(
+        "", ref="master"
+    )  # Change 'master' if the repo uses a different branch
 
     def get_all_files(repo, contents):
         files = []
@@ -57,9 +75,11 @@ def get_repository(repository_name: str):
 
             try:
                 # Read and decode the file's content as text
-                file_data = base64.b64decode(file.content).decode('utf-8')
+                file_data = base64.b64decode(file.content).decode("utf-8")
                 # Concatenate the content
-                concatenated_content += file_data + "\n"  # Adding newline for separation between files
+                concatenated_content += (
+                    file_data + "\n"
+                )  # Adding newline for separation between files
             except UnicodeDecodeError as e:
                 print(f"Skipping file due to decode error: {file.path} - {e}")
         else:
@@ -79,25 +99,25 @@ def cli(repository: str, traffic: int):
     code_str = get_repository(repository)
     resp = check_for_external_services(code_str=code_str, traffic=traffic)
 
-    shell_command = f"cd ../../frontend/my-app && npm run dev"
+    if DO_FRONTEND_STUFF:
+        shell_command = f"cd ../../frontend/my-app && npm run dev"
 
-    subprocess.Popen(shell_command, shell=True)
+        subprocess.Popen(shell_command, shell=True)
 
-    time.sleep(3)
+        time.sleep(3)
 
-    try:
-        webbrowser.open("http://localhost:3000")
-    except Exception as e:
-        print(f"Failed to launch browser: {e}")
+        try:
+            webbrowser.open("http://localhost:3000")
+        except Exception as e:
+            print(f"Failed to launch browser: {e}")
 
     print("Your original Tech Stack:" + json.dumps(resp[0], indent=4))
     print("Your Optimized Tech Stack:" + json.dumps(resp[1], indent=4))
     print("Technical Report:" + json.dumps(resp[2], indent=4))
 
-
     json_body = {}
     json_body["original_service"] = resp[0]
     json_body["optimal_service"] = resp[1]
     json_body["tech_report"] = resp[2]
+    json_body["repository_name"] = repository
     resp = requests.post("http://127.0.0.1:8000/api/set_info", json=json_body)
-
