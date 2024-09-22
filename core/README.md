@@ -23,6 +23,6 @@ set CEREBRAS_API_KEY=<API KEY>
 2. Run `poetry install`
 3. To test if it works, run the following command in cmd or terminal:
 
-```bash
-underflow https://raw.githubusercontent.com/GoogleCloudPlatform/getting-started-python/refs/heads/main/noxfile.py
+```
+underflow semgrep/semgrep-vscode 20000
 ```
