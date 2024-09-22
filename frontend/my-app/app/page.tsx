@@ -45,52 +45,52 @@ export const description = "A collection of health charts.";
 // export const oldServices = [
 //   { name: "S3", type: "Storage", cost: "$50.00" },
 //   { name: "S3", type: "Storage", cost: "$50.00" },
-// ];
+// // ];
 
-export const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-];
+// export const invoices = [
+//   {
+//     invoice: "INV001",
+//     paymentStatus: "Paid",
+//     totalAmount: "$250.00",
+//     paymentMethod: "Credit Card",
+//   },
+//   {
+//     invoice: "INV002",
+//     paymentStatus: "Pending",
+//     totalAmount: "$150.00",
+//     paymentMethod: "PayPal",
+//   },
+//   {
+//     invoice: "INV003",
+//     paymentStatus: "Unpaid",
+//     totalAmount: "$350.00",
+//     paymentMethod: "Bank Transfer",
+//   },
+//   {
+//     invoice: "INV004",
+//     paymentStatus: "Paid",
+//     totalAmount: "$450.00",
+//     paymentMethod: "Credit Card",
+//   },
+//   {
+//     invoice: "INV005",
+//     paymentStatus: "Paid",
+//     totalAmount: "$550.00",
+//     paymentMethod: "PayPal",
+//   },
+//   {
+//     invoice: "INV006",
+//     paymentStatus: "Pending",
+//     totalAmount: "$200.00",
+//     paymentMethod: "Bank Transfer",
+//   },
+//   {
+//     invoice: "INV007",
+//     paymentStatus: "Unpaid",
+//     totalAmount: "$300.00",
+//     paymentMethod: "Credit Card",
+//   },
+// ];
 
 export const chartData = [
   { month: "Cloud", desktop: 186, mobile: 80 },
@@ -182,7 +182,7 @@ export default function Charts() {
       setCurrentTraffic(res.data.content.currentTraffic.value);
       setSummary(res.data.content.summary.value);
       setAiAssistantResp(res.data.content.aiAssistantResp.value);
-      setCostComparisonData(res.data.content.costComparison);
+      setCostComparisonData(res.data.content.costComparisonV2);
       setRevenueComparisonData(res.data.content.revenueComparison);
       setTrafficComparisonData(res.data.content.trafficCostComparison);
       setRepositoryName(res.data.content.repositoryName);
@@ -219,7 +219,11 @@ export default function Charts() {
             <TableBody>
               {props.tabularData.map((service) => (
                 <TableRow key={service.name}>
-                  <TableCell className="font-medium">{service.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <a href={service.url} target="_blank">
+                      {service.name} {"(with url)"}
+                    </a>
+                  </TableCell>
                   <TableCell>{service.type}</TableCell>
                   <TableCell className="text-right">{service.cost}</TableCell>
                 </TableRow>
@@ -241,10 +245,7 @@ export default function Charts() {
           <ChartContainer config={chartConfig}>
             <LineChart
               accessibilityLayer
-              data={[
-                { label: 0.03, new: 400000.0, original: 400000.0 },
-                { label: 0.022, new: 950000.0, original: 950000.0 },
-              ]}
+              data={trafficComparisonData}
               margin={{
                 left: 12,
                 right: 12,
