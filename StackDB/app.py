@@ -1,27 +1,26 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from mysql.connector import connect, Error
-from typing import List, Dict, Any
+import os
 from collections import defaultdict
 from enum import Enum
-import uvicorn
-from openai import OpenAI
-from openai import OpenAIError
-import os
-from dotenv import load_dotenv
+from typing import Any, Dict, List
 
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from mysql.connector import Error, connect
+from openai import OpenAI, OpenAIError
+from pydantic import BaseModel
 
 # Database Configuration
-DB_HOST = "stackunderflow.cha8ies4obs2.us-east-1.rds.amazonaws.com"# Replace with your RDS endpoint
-DB_PORT = "3306"# MySQL default port
-DB_USER = "admin"   # Replace with your MySQL username
-DB_PASSWORD = "12345678" # Replace with your MySQL password
+DB_HOST = "stackunderflow.cha8ies4obs2.us-east-1.rds.amazonaws.com"  # Replace with your RDS endpoint
+DB_PORT = "3306"  # MySQL default port
+DB_USER = "admin"  # Replace with your MySQL username
+DB_PASSWORD = "12345678"  # Replace with your MySQL password
 DB_NAME = "StackUnderflow"
 
 
-client = OpenAI(
-    api_key=os.getenv('OPENAI_API_KEY')
-)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 # Define the ServiceType Enum
 class ServiceType(Enum):
@@ -94,9 +93,11 @@ class ServiceResponse(BaseModel):
     description: str
     traffic: float
 
+
 # Define the Report Response Model
 class ReportResponse(BaseModel):
     report: str
+
 
 # API Class to handle database operations
 class API:
@@ -111,7 +112,7 @@ class API:
                 user=DB_USER,
                 password=DB_PASSWORD,
                 database=DB_NAME,
-                autocommit=False  # Manage transactions manually
+                autocommit=False,  # Manage transactions manually
             )
             print("Successfully connected to the database.")
             return connection
@@ -139,7 +140,7 @@ class API:
         try:
             cursor = self.connection.cursor(dictionary=True)
             # Prepare the SQL query with placeholders
-            format_strings = ','.join(['%s'] * len(services_names))
+            format_strings = ",".join(["%s"] * len(services_names))
             query = f"""
                 SELECT name, cost_per_user_per_hour, detailed_description, traffic_upperbound, type 
                 FROM services 
@@ -151,11 +152,11 @@ class API:
             for row in results:
                 try:
                     service = Service(
-                        name=row['name'],
-                        cost=float(row['cost_per_user_per_hour']),
-                        type=ServiceType(row['type']),
-                        description=row.get('detailed_description', ''),
-                        traffic=float(row.get('traffic_upperbound', 0))
+                        name=row["name"],
+                        cost=float(row["cost_per_user_per_hour"]),
+                        type=ServiceType(row["type"]),
+                        description=row.get("detailed_description", ""),
+                        traffic=float(row.get("traffic_upperbound", 0)),
                     )
                     services.append(service)
                 except ValueError as ve:
@@ -174,7 +175,9 @@ class API:
 
         return services
 
-    def find_cheapest_highest_traffic_per_type(self, services: List[Service]) -> List[Service]:
+    def find_cheapest_highest_traffic_per_type(
+        self, services: List[Service]
+    ) -> List[Service]:
         """
         Identifies the cheapest service with the highest traffic for each service type.
 
@@ -190,7 +193,9 @@ class API:
 
         for service_type, service_list in services_by_type.items():
             if service_type is None:
-                print(f"Warning: Service type for services {[s.name for s in service_list]} is unknown.")
+                print(
+                    f"Warning: Service type for services {[s.name for s in service_list]} is unknown."
+                )
                 continue  # Skip unknown types
 
             # Sort services first by cost (ascending), then by traffic (descending)
@@ -199,7 +204,9 @@ class API:
             optimal_service = sorted_services[0]
             optimal_services.append(optimal_service)
 
-        print(f"Identified {len(optimal_services)} optimal services across service types.")
+        print(
+            f"Identified {len(optimal_services)} optimal services across service types."
+        )
         return optimal_services
 
     def close_connection(self):
@@ -211,8 +218,22 @@ class API:
 # Initialize FastAPI
 app = FastAPI(title="StackUnderflow Service Optimizer")
 
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 # Initialize the API handler
 api_handler = API()
+
 
 # Define the Endpoint
 @app.post("/original-services", response_model=List[ServiceResponse])
@@ -227,15 +248,21 @@ def get_original_services(request: ServiceRequest):
         # Fetch services from the database
         services = api_handler.get_services(request.services)
         if not services:
-            raise HTTPException(status_code=404, detail="No services found for the provided names.")
+            raise HTTPException(
+                status_code=404, detail="No services found for the provided names."
+            )
         return [ServiceResponse(**service.dict()) for service in services]
 
     except Error as db_error:
         print(f"Database error: {db_error}")
-        raise HTTPException(status_code=500, detail="Internal server error while accessing the database.")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while accessing the database.",
+        )
     except Exception as e:
         print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
+
 
 # Define the Endpoint
 @app.post("/optimal-services", response_model=List[ServiceResponse])
@@ -250,18 +277,25 @@ def get_optimal_services(request: ServiceRequest):
         # Fetch services from the database
         services = api_handler.get_services(request.services)
         if not services:
-            raise HTTPException(status_code=404, detail="No services found for the provided names.")
+            raise HTTPException(
+                status_code=404, detail="No services found for the provided names."
+            )
 
         # Identify optimal services
         optimal_services = api_handler.find_cheapest_highest_traffic_per_type(services)
         if not optimal_services:
-            raise HTTPException(status_code=404, detail="No optimal services could be identified.")
+            raise HTTPException(
+                status_code=404, detail="No optimal services could be identified."
+            )
 
         return [ServiceResponse(**service.dict()) for service in optimal_services]
 
     except Error as db_error:
         print(f"Database error: {db_error}")
-        raise HTTPException(status_code=500, detail="Internal server error while accessing the database.")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while accessing the database.",
+        )
     except Exception as e:
         print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
@@ -280,23 +314,33 @@ def generate_technical_report(request: ServiceRequest):
         # Fetch original services from the database
         original_services = api_handler.get_services(request.services)
         if not original_services:
-            raise HTTPException(status_code=404, detail="No services found for the provided names.")
+            raise HTTPException(
+                status_code=404, detail="No services found for the provided names."
+            )
 
         # Identify optimal services
-        optimal_services = api_handler.find_cheapest_highest_traffic_per_type(original_services)
+        optimal_services = api_handler.find_cheapest_highest_traffic_per_type(
+            original_services
+        )
         if not optimal_services:
-            raise HTTPException(status_code=404, detail="No optimal services could be identified.")
+            raise HTTPException(
+                status_code=404, detail="No optimal services could be identified."
+            )
 
         # Prepare the context for the report
-        original_services_data = "\n".join([
-            f"- **{service.name}** (Type: {service.type.value})\n  - Cost: ${service.cost}/user/hour\n  - Traffic Upperbound: {service.traffic} units\n  - Description: {service.description}"
-            for service in original_services
-        ])
+        original_services_data = "\n".join(
+            [
+                f"- **{service.name}** (Type: {service.type.value})\n  - Cost: ${service.cost}/user/hour\n  - Traffic Upperbound: {service.traffic} units\n  - Description: {service.description}"
+                for service in original_services
+            ]
+        )
 
-        optimal_services_data = "\n".join([
-            f"- **{service.name}** (Type: {service.type.value})\n  - Cost: ${service.cost}/user/hour\n  - Traffic Upperbound: {service.traffic} units\n  - Description: {service.description}"
-            for service in optimal_services
-        ])
+        optimal_services_data = "\n".join(
+            [
+                f"- **{service.name}** (Type: {service.type.value})\n  - Cost: ${service.cost}/user/hour\n  - Traffic Upperbound: {service.traffic} units\n  - Description: {service.description}"
+                for service in optimal_services
+            ]
+        )
 
         # Define the prompt for OpenAI
         prompt = f"""
@@ -317,26 +361,32 @@ def generate_technical_report(request: ServiceRequest):
         """
 
         # Call OpenAI API to generate the report
-        response = client.chat.completions.create(model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a technical analyst."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=1000,
-        temperature=0.7)
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a technical analyst."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=1000,
+            temperature=0.7,
+        )
 
         # Extract the report from OpenAI's response
         report = response.choices[0].message.content.strip()
         print(f"Generated technical report: {report}")
         return ReportResponse(report=report)
 
-
     except OpenAIError as oe:
         print(f"OpenAI API error: {oe}")
-        raise HTTPException(status_code=502, detail="Error communicating with OpenAI API.")
+        raise HTTPException(
+            status_code=502, detail="Error communicating with OpenAI API."
+        )
     except Error as db_error:
         print(f"Database error: {db_error}")
-        raise HTTPException(status_code=500, detail="Internal server error while accessing the database.")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while accessing the database.",
+        )
     except Exception as e:
         print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
@@ -346,6 +396,35 @@ def generate_technical_report(request: ServiceRequest):
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the StackUnderflow Service Optimizer API!"}
+
+
+@app.get("/api/current_state")
+def api_current_state():
+    return {
+        "content": {
+            "currentMonthlyCost": {"value": "$59.00"},
+            "estimatedSavings": {"value": "40%"},
+            "serverUptime": {"value": "20%"},
+            "currentTraffic": {"value": "15,000"},
+            "summary": {"value": "Placeholder description"},
+            "aiAssistantResp": {"value": "Assistant response."},
+            "costComparison": [
+                {"label": "Cloud", "original": 186, "new": 80},
+                {"label": "Storage", "original": 305, "new": 200},
+                {"label": "Distribution", "original": 237, "new": 120},
+            ],
+            "revenueComparison": [
+                {"label": "Sep", "original": 186, "new": 80},
+                {"label": "Oct", "original": 305, "new": 200},
+                {"label": "Nov", "original": 237, "new": 120},
+            ],
+            "trafficCostComparison": [
+                {"label": "1", "new": 80},
+                {"label": "2", "new": 200},
+                {"label": "3", "new": 120},
+            ],
+        }
+    }
 
 
 # Shutdown Event to close the DB connection
