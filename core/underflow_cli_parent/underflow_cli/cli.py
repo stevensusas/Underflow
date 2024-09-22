@@ -18,7 +18,7 @@ def cli(uri: str, traffic: int):
     current_dir = os.getcwd()
     print(f"Current working directory: {current_dir}")
 
-    shell_command = f"cd ../../frontend/underflow_cli/my-app && npm run dev"
+    shell_command = f"cd ../../frontend/my-app && npm run dev"
     
     subprocess.Popen(shell_command, shell=True)
 

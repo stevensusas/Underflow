@@ -1,4 +1,4 @@
 *env
 *pyc
 *pytest_cache
-/underflow-sdk/
+/underflow/
