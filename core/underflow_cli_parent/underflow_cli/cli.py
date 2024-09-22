@@ -1,18 +1,18 @@
-import click
-import requests
-from underflow_sdk.analyze_code import check_for_external_services
-import json
-import subprocess
-import os
-import webbrowser
-import time
-import requests
-from github import Github
 import base64
+import json
 import mimetypes
-import dotenv
 import os
+import subprocess
+import time
+import webbrowser
+
+import click
+import dotenv
 import pyautogui
+import requests
+from cerebras.cloud.sdk import Cerebras
+from github import Github
+from underflow_sdk.analyze_code import check_for_external_services
 
 DO_FRONTEND_STUFF = False
 
@@ -32,6 +32,12 @@ CODE_FILE_EXTENSIONS = {
     ".rs",
     ".swift",
 }
+
+
+cerebras_client = Cerebras(
+    # This is the default and can be omitted
+    api_key=os.environ.get("CEREBRAS_API_KEY"),
+)
 
 
 def summarize_for_generation(code_str, recommendations):
@@ -61,6 +67,19 @@ def summarize_for_generation(code_str, recommendations):
     response = requests.post(url, headers=headers, json=data)
     msg = response.json()["choices"][0]["message"]["content"]
     return msg
+
+
+def only_keep_important_lines(code):
+    chat_completion = cerebras_client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": f"Only keep the lines of code that deal with services or dependencies: {code}",
+            }
+        ],
+        model="llama3.1-8b",
+    )
+    return chat_completion.choices[0].message.content
 
 
 def create_defang(instructions):
@@ -165,8 +184,14 @@ def cli(repository: str, traffic: int):
     json_body["repository_name"] = repository
     resp = requests.post("http://127.0.0.1:8000/api/set_info", json=json_body)
 
-    instructions = summarize_for_generation(
-        code_str=code_str, recommendations=json_body["tech_report"]["report"]
-    )
-    print(instructions)
-    create_defang(instructions=instructions)
+    user_resp = input("Auto-generate code? (y/N)")
+
+    if user_resp == "y":
+        shortened_code = only_keep_important_lines(code_str)
+        print(shortened_code)
+
+        instructions = summarize_for_generation(
+            code_str=shortened_code, recommendations=json_body["tech_report"]["report"]
+        )
+        print(instructions)
+        create_defang(instructions=instructions)
