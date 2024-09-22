@@ -40,7 +40,6 @@ def check_for_external_services(code_str: str, traffic: int):
     url_tech_report = "http://localhost:8000/generate-report"
 
     services = resp.choices[0].message.content.split(", ")
-    print(services)
     payload = {"services": services, "traffic": traffic}
 
     original_service = requests.post(url_original_service, json=payload).json()
