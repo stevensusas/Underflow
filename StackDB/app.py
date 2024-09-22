@@ -34,6 +34,7 @@ class LocalState:
         self.original_service = None
         self.optimal_service = None
         self.tech_report = None
+        self.repository_name = None
 
     def update_original_service(self, data):
         self.original_service = data
@@ -43,6 +44,9 @@ class LocalState:
 
     def update_tech_report(self, data):
         self.tech_report = data
+
+    def update_repository_name(self, data):
+        self.repository_name = data
 
 
 def summarize(text):
@@ -463,6 +467,7 @@ async def api_set_info(request: Request):
     local_state.update_original_service(resp["original_service"])
     local_state.update_optimal_service(resp["optimal_service"])
     local_state.update_tech_report(resp["tech_report"])
+    local_state.update_repository_name(resp["repository_name"])
     return {"data": resp}
 
 
@@ -483,7 +488,20 @@ def api_current_state():
 
     return {
         "content": {
+            "oldServices": [
+                {"name": tmp["name"], "type": tmp["type"], "cost": f"$ {tmp['cost']}"}
+                for tmp in local_state.original_service
+            ],
+            "newServices": [
+                {
+                    "name": tmp["name"],
+                    "type": tmp["type"],
+                    "cost": f"$ {round(tmp['cost'],2)}",
+                }
+                for tmp in local_state.optimal_service
+            ],
             "currentMonthlyCost": {"value": f"${round(original_cost,2)}"},
+            "newMonthlyCost": {"value": f"${round(optimal_cost, 2)}"},
             "estimatedSavings": {
                 "value": f"{round(100*(original_cost-optimal_cost)/original_cost,1)}%"
             },
@@ -504,6 +522,7 @@ def api_current_state():
                 # {"label": "Nov", "original": 237, "new": 150},
             ],
             "trafficCostComparison": traffic_cost,
+            "repositoryName": local_state.repository_name,
             # [
             #     {"label": "1", "new": 0},
             #     # {"label": "2", "new": 180},

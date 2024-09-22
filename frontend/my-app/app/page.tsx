@@ -2,6 +2,17 @@
 
 import axios from "axios";
 
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import {
@@ -30,6 +41,56 @@ import {
 import { useEffect, useState } from "react";
 
 export const description = "A collection of health charts.";
+
+// export const oldServices = [
+//   { name: "S3", type: "Storage", cost: "$50.00" },
+//   { name: "S3", type: "Storage", cost: "$50.00" },
+// ];
+
+export const invoices = [
+  {
+    invoice: "INV001",
+    paymentStatus: "Paid",
+    totalAmount: "$250.00",
+    paymentMethod: "Credit Card",
+  },
+  {
+    invoice: "INV002",
+    paymentStatus: "Pending",
+    totalAmount: "$150.00",
+    paymentMethod: "PayPal",
+  },
+  {
+    invoice: "INV003",
+    paymentStatus: "Unpaid",
+    totalAmount: "$350.00",
+    paymentMethod: "Bank Transfer",
+  },
+  {
+    invoice: "INV004",
+    paymentStatus: "Paid",
+    totalAmount: "$450.00",
+    paymentMethod: "Credit Card",
+  },
+  {
+    invoice: "INV005",
+    paymentStatus: "Paid",
+    totalAmount: "$550.00",
+    paymentMethod: "PayPal",
+  },
+  {
+    invoice: "INV006",
+    paymentStatus: "Pending",
+    totalAmount: "$200.00",
+    paymentMethod: "Bank Transfer",
+  },
+  {
+    invoice: "INV007",
+    paymentStatus: "Unpaid",
+    totalAmount: "$300.00",
+    paymentMethod: "Credit Card",
+  },
+];
 
 export const chartData = [
   { month: "Cloud", desktop: 186, mobile: 80 },
@@ -82,7 +143,14 @@ function USummaryBlock(props) {
   return (
     <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
       <CardHeader>
-        <CardTitle>{props.title}</CardTitle>
+        <CardTitle>
+          {/* <ChartColumn
+            color="black"
+            size={18}
+            style={{ verticalAlign: "middle", display: "inline-block" }}
+          />{" "} */}
+          {props.title}
+        </CardTitle>
       </CardHeader>
       <CardContent className="gap-1">{props.description}</CardContent>
     </Card>
@@ -91,6 +159,7 @@ function USummaryBlock(props) {
 
 export default function Charts() {
   const [monthlyCost, setMonthlyCost] = useState("");
+  const [newMonthlyCost, setNewMonthlyCost] = useState("");
   const [estimatedSavings, setEstimatedSavings] = useState("");
   const [serverUptime, setServerUptime] = useState("");
   const [currentTraffic, setCurrentTraffic] = useState("");
@@ -99,11 +168,15 @@ export default function Charts() {
   const [costComparisonData, setCostComparisonData] = useState(null);
   const [revenueComparisonData, setRevenueComparisonData] = useState(null);
   const [trafficComparisonData, setTrafficComparisonData] = useState({});
+  const [repositoryName, setRepositoryName] = useState("");
+  const [oldServices, setOldServices] = useState([]);
+  const [newServices, setNewServices] = useState([]);
 
   useEffect(() => {
     axios.get("http://localhost:8000/api/current_state").then((res) => {
       console.log(res);
       setMonthlyCost(res.data.content.currentMonthlyCost.value);
+      setNewMonthlyCost(res.data.content.newMonthlyCost.value);
       setEstimatedSavings(res.data.content.estimatedSavings.value);
       setServerUptime(res.data.content.serverUptime.value);
       setCurrentTraffic(res.data.content.currentTraffic.value);
@@ -112,6 +185,9 @@ export default function Charts() {
       setCostComparisonData(res.data.content.costComparison);
       setRevenueComparisonData(res.data.content.revenueComparison);
       setTrafficComparisonData(res.data.content.trafficCostComparison);
+      setRepositoryName(res.data.content.repositoryName);
+      setNewServices(res.data.content.newServices);
+      setOldServices(res.data.content.oldServices);
 
       function sleep(time) {
         return new Promise((resolve) => setTimeout(resolve, time));
@@ -123,6 +199,37 @@ export default function Charts() {
     });
     console.log("testing integration. ");
   }, []);
+
+  function UServiceTable(props) {
+    console.log(props);
+    return (
+      <Card className="max-w-xs uBox1" x-chunk="charts-01-chunk-7">
+        <CardHeader>
+          <CardTitle>{props.title}</CardTitle>
+        </CardHeader>
+        <CardContent className="gap-1">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Cost</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {props.tabularData.map((service) => (
+                <TableRow key={service.name}>
+                  <TableCell className="font-medium">{service.name}</TableCell>
+                  <TableCell>{service.type}</TableCell>
+                  <TableCell className="text-right">{service.cost}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    );
+  }
 
   function UTrafficCostBlock(props) {
     return (
@@ -280,10 +387,20 @@ export default function Charts() {
     );
   }
 
+  console.log(oldServices);
+
   return (
     <main>
-      <div className="chart-wrapper mx-auto flex max-w-6xl flex-col flex-wrap items-start justify-center gap-6 p-6 sm:flex-row">
-        <p className="text-xl font-bold">Tech Stack Optimization Dashboard</p>
+      <div className="justify-center gap-6 p-6 sm:flex-row">
+        <center>
+          <p className="text-3xl font-bold">
+            Tech Stack Optimization Dashboard
+          </p>
+          <p>
+            Results for{" "}
+            <span className="font-mono font-thin">{repositoryName}</span>
+          </p>
+        </center>
       </div>
 
       <div className="chart-wrapper mx-auto flex max-w-6xl flex-col flex-wrap items-start justify-center gap-6 p-6 sm:flex-row sm:p-8">
@@ -292,14 +409,15 @@ export default function Charts() {
             value={monthlyCost}
             featureName={"Current Monthly Cost"}
           />
+          <UServiceTable title={"Old Services"} tabularData={oldServices} />
           <UAiAssistant title={"AI Assistant"} description={aiAssistantResp} />
         </div>
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock
-            value={estimatedSavings}
-            featureName={"Estimated Savings"}
+            value={newMonthlyCost}
+            featureName={"New Monthly Cost"}
           />
-          <USummaryBlock title={"Summary"} description={summary} />
+          <UServiceTable title={"New Services"} tabularData={newServices} />
 
           <UCostComparisionBlock
             title={"Cost Comparison"}
@@ -313,9 +431,14 @@ export default function Charts() {
         {/* </div> */}
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock
+            value={estimatedSavings}
+            featureName={"Estimated Savings"}
+          />
+          <USimpleBlock
             value={currentTraffic}
             featureName={"Current Traffic"}
           />
+          <USummaryBlock title={"Summary"} description={summary} />
           <UTrafficCostBlock title={"Traffic vs Cost"} />
         </div>
       </div>
