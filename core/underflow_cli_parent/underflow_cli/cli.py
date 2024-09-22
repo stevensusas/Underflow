@@ -90,5 +90,14 @@ def cli(repository: str, traffic: int):
     except Exception as e:
         print(f"Failed to launch browser: {e}")
 
+    print("Your original Tech Stack:" + json.dumps(resp[0], indent=4))
     print("Your Optimized Tech Stack:" + json.dumps(resp[1], indent=4))
     print("Technical Report:" + json.dumps(resp[2], indent=4))
+
+
+    json_body = {}
+    json_body["original_service"] = resp[0]
+    json_body["optimal_service"] = resp[1]
+    json_body["tech_report"] = resp[2]
+    resp = requests.post("http://127.0.0.1:8000/api/set_info", json=json_body)
+
