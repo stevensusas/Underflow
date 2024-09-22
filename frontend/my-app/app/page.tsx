@@ -2,30 +2,23 @@
 
 import axios from "axios";
 
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
-  Label,
-  LabelList,
   Line,
   LineChart,
-  PolarAngleAxis,
-  RadialBar,
-  RadialBarChart,
-  Rectangle,
-  ReferenceLine,
   XAxis,
-  YAxis,
 } from "recharts";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components//ui/card";
@@ -34,7 +27,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components//ui/chart";
-import { Separator } from "@/components//ui/separator";
 import { useEffect, useState } from "react";
 
 export const description = "A collection of health charts.";
@@ -72,11 +64,16 @@ function USimpleBlock(props) {
 
 function UAiAssistant(props) {
   return (
-    <Card className="max-w-xs uBox1">
+    <Card className="max-w-xs uBoxReport">
       <CardHeader>
         <CardTitle>{props.title}</CardTitle>
       </CardHeader>
-      <CardContent className="gap-1">{props.description}</CardContent>
+
+      <CardContent className="gap-1">
+        <ScrollArea className="h-[250px] w-full rounded-md border p-4">
+          {props.description}
+        </ScrollArea>
+      </CardContent>
     </Card>
   );
 }
@@ -137,7 +134,10 @@ export default function Charts() {
           <ChartContainer config={chartConfig}>
             <LineChart
               accessibilityLayer
-              data={trafficComparisonData}
+              data={[
+                { label: 0.03, new: 400000.0, original: 400000.0 },
+                { label: 0.022, new: 950000.0, original: 950000.0 },
+              ]}
               margin={{
                 left: 12,
                 right: 12,
@@ -149,7 +149,7 @@ export default function Charts() {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
+                // tickFormatter={(value) => value.slice(0, 3)}
               />
               <ChartTooltip
                 cursor={false}
@@ -265,7 +265,7 @@ export default function Charts() {
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+                // tickFormatter={(value) => value.slice(0, 3)}
               />
               <ChartTooltip
                 cursor={false}
@@ -300,15 +300,17 @@ export default function Charts() {
             featureName={"Estimated Savings"}
           />
           <USummaryBlock title={"Summary"} description={summary} />
+
           <UCostComparisionBlock
             title={"Cost Comparison"}
             chartData={costComparisonData}
           />
         </div>
-        <div className="grid w-full flex-1 gap-6">
-          <USimpleBlock value={serverUptime} featureName={"Server Uptime"} />
-          <URevenueComparisionBlock title={"Comparison of Revenue"} />
-        </div>
+        {/* <div className="grid w-full flex-1 gap-6"> */}
+
+        {/* <USimpleBlock value={serverUptime} featureName={"Server Uptime"} /> */}
+        {/* <URevenueComparisionBlock title={"Comparison of Revenue"} /> */}
+        {/* </div> */}
         <div className="grid w-full flex-1 gap-6">
           <USimpleBlock
             value={currentTraffic}

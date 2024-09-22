@@ -6,12 +6,12 @@ import subprocess
 import os
 import webbrowser
 import time
-import request
+import requests
+
 
 @click.command
 @click.argument("uri")
 @click.argument("traffic")
-
 def cli(uri: str, traffic: int):
     code_str = requests.get(uri).text
     resp = check_for_external_services(code_str=code_str, traffic=traffic)
@@ -20,12 +20,10 @@ def cli(uri: str, traffic: int):
     print(f"Current working directory: {current_dir}")
 
     shell_command = f"cd ../../frontend/my-app && npm run dev"
-    
+
     subprocess.Popen(shell_command, shell=True)
 
     time.sleep(3)
-
-    
 
     try:
         webbrowser.open("http://localhost:3000")
