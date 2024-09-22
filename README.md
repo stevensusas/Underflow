@@ -4,6 +4,8 @@ Minimize your tech stack's developmental cost
 ![Stack Underflow-1](https://github.com/user-attachments/assets/ecaf0379-86c2-492f-b9ef-79fd9a5e29de)
 ![Blank board (6)](https://github.com/user-attachments/assets/f94681f3-4716-465b-b155-c8f0c13e2b02)
 
+https://github.com/user-attachments/assets/d75a332f-8644-428d-b918-cf5b7dcd94f0
+
 ## How to use
 
 ### Starting up backend
