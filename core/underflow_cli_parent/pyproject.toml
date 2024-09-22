@@ -16,6 +16,7 @@ underflow-sdk = { path = "../underflow_sdk_parent" }
 python-dotenv = "^1.0.1"
 openai = "^1.47.0"
 pygithub = "^2.4.0"
+pyautogui = "^0.9.54"
 
 [build-system]
 requires = ["poetry-core"]
